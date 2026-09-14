@@ -1,4 +1,4 @@
-export const API_BASE = import.meta.env.VITE_BASE_URL_API;
+export const API_BASE = import.meta.env.VITE_BASE_URL_API || "/api/";
 
 export const ADMIN_LOGIN = "admin/login";
 
