@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
+import api from "../api/apiClient";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,21 +13,26 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      if (email && password) {
+    try {
+      const res = await api.post("admin/login", { email, password });
+      if (res.data.token) {
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("adminToken", "demo-token");
+        localStorage.setItem("adminToken", res.data.token);
+        localStorage.setItem("adminEmail", res.data.admin.email);
+        localStorage.setItem("adminName", res.data.admin.name);
         navigate("/dashboard");
-      } else {
-        setError("Please enter valid credentials");
       }
+    } catch (err) {
+      const msg = err.response?.data?.message || "Login failed. Please try again.";
+      setError(msg);
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
