@@ -45,12 +45,12 @@ const Sidebar = () => {
     return (
       <>
         {/* Mobile Top Bar */}
-        <div className="fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-green-600 flex items-center justify-center">
-              <TreePine size={18} className="text-white" />
+        <div className="fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-gray-800 px-4 py-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-white p-0.5 flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="Rajaji Logo" className="w-full h-full object-contain" />
             </div>
-            <span className="text-white font-bold text-sm">Jungle Safari</span>
+            <span className="text-white font-bold text-sm tracking-tight">Rajaji National Park</span>
           </div>
           <button
             onClick={handleLogout}
@@ -108,19 +108,19 @@ const Sidebar = () => {
     >
       <div className="h-full bg-gray-800 bg-opacity-50 backdrop-blur-md p-4 flex flex-col border-r border-gray-700">
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-10 h-10 rounded-lg bg-green-600 flex items-center justify-center flex-shrink-0">
-            <TreePine size={22} className="text-white" />
+          <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
+            <img src="/logo.png" alt="Rajaji Logo" className="w-full h-full object-contain" />
           </div>
           <AnimatePresence>
             {isSidebarOpen && (
               <motion.span
-                className="text-lg font-bold text-white whitespace-nowrap overflow-hidden"
+                className="text-base font-bold text-white whitespace-nowrap overflow-hidden tracking-tight"
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.2, delay: 0.3 }}
               >
-                Jungle Safari
+                Rajaji National Park
               </motion.span>
             )}
           </AnimatePresence>

@@ -56,7 +56,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Dashboard" subtitle="Welcome back to Jungle Safari Admin" />
+      <Header title="Dashboard" subtitle="Welcome back to Rajaji National Park Admin" />
 
       <main className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
         {loading ? (

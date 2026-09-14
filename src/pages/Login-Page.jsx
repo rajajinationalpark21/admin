@@ -82,11 +82,9 @@ export default function LoginPage() {
               <motion.div
                 animate={{ y: [-5, 5, -5] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className="w-24 h-24 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-600/10 backdrop-blur-sm border border-emerald-500/20 flex items-center justify-center"
+                className="w-24 h-24 rounded-2xl bg-white p-3 shadow-xl flex items-center justify-center overflow-hidden"
               >
-                <svg className="w-14 h-14 text-emerald-400/80" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="m12 2 4 6h-3l4 6h-3l3 6H4l3-6H4l4-6H5l7-6z" />
-                </svg>
+                <img src="/logo.png" alt="Rajaji Logo" className="w-full h-full object-contain" />
               </motion.div>
             </div>
           </motion.div>
@@ -135,12 +133,10 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             className="lg:hidden text-center mb-10"
           >
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-900/50">
-              <svg className="w-10 h-10 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="m12 2 4 6h-3l4 6h-3l3 6H4l3-6H4l4-6H5l7-6z" />
-              </svg>
+            <div className="w-16 h-16 rounded-xl bg-white p-2 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-900/50">
+              <img src="/logo.png" alt="Rajaji Logo" className="w-full h-full object-contain" />
             </div>
-            <h1 className="text-2xl font-bold text-white">Jungle Safari</h1>
+            <h1 className="text-2xl font-bold text-white">Rajaji National Park</h1>
           </motion.div>
 
           {/* Header */}
