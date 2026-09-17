@@ -79,6 +79,9 @@ export default function LoginPage() {
         localStorage.setItem("adminToken", res.data.token);
         localStorage.setItem("adminEmail", res.data.admin?.email || email);
         localStorage.setItem("adminName", res.data.admin?.name || "Administrator");
+        if (res.data.admin?.id) {
+          localStorage.setItem("adminId", res.data.admin.id);
+        }
         navigate("/dashboard");
       }
     } catch (err) {

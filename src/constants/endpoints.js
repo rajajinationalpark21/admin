@@ -25,3 +25,7 @@ export const FEEDBACK_GET_ALL = "feedback/get";
 export const FEEDBACK_UPDATE = "feedback/update";
 export const FEEDBACK_DELETE = "feedback/delete";
 
+export const ADMIN_USERS_GET = "admin/users";
+export const ADMIN_USER_CREATE = "admin/create-user";
+export const ADMIN_USER_DELETE = "admin/delete-user";
+
