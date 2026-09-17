@@ -4,6 +4,7 @@ import { ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
 import { getMuiTheme } from "./theme/muiTheme";
 import { ThemeProvider as AdminThemeProvider, useAdminTheme } from "./context/ThemeContext";
 import Sidebar from "./components/common/Sidebar";
+import BottomNav, { MobileTopBar } from "./components/common/BottomNav";
 import Dashboard from "./pages/Dashboard";
 import ContentManager from "./pages/ContentManager";
 import BlogManager from "./pages/BlogManager";
@@ -20,7 +21,7 @@ function AdminShell() {
   const { theme, themeConfig } = useAdminTheme();
   const muiTheme = useMemo(() => getMuiTheme(theme), [theme]);
   const location = useLocation();
-  const hideSidebar = location.pathname === "/" || location.pathname === "/login";
+  const hideNav = location.pathname === "/" || location.pathname === "/login";
   const getAuth = localStorage.getItem("isAuthenticated");
 
   return (
@@ -28,21 +29,21 @@ function AdminShell() {
       <CssBaseline />
       <div className={`flex h-screen ${themeConfig.bgClass} overflow-hidden transition-colors duration-200`}>
         {/* Desktop Sidebar */}
-        {!hideSidebar && getAuth && (
+        {!hideNav && getAuth && (
           <div className="hidden md:block h-full shrink-0">
             <Sidebar />
           </div>
         )}
 
-        {/* Mobile Top Bar + Bottom Nav */}
-        {!hideSidebar && getAuth && (
+        {/* Mobile Top Bar */}
+        {!hideNav && getAuth && (
           <div className="md:hidden">
-            <Sidebar />
+            <MobileTopBar />
           </div>
         )}
 
         {/* Main Content */}
-        <main className="flex-1 overflow-auto relative z-10 md:pt-0 pt-14 pb-20 md:pb-0">
+        <main className={`flex-1 overflow-auto relative z-10 ${!hideNav && getAuth ? "pt-14 md:pt-0 pb-[68px] md:pb-0" : ""}`}>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
@@ -56,6 +57,13 @@ function AdminShell() {
             <Route path="*" element={<LoginPage />} />
           </Routes>
         </main>
+
+        {/* Mobile Bottom Nav */}
+        {!hideNav && getAuth && (
+          <div className="md:hidden">
+            <BottomNav />
+          </div>
+        )}
 
         <ToastContainer
           position="top-right"

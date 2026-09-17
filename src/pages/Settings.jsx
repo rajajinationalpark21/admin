@@ -24,11 +24,13 @@ import {
   DialogContent,
   DialogActions,
   Chip,
-  useTheme
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 
 export default function Settings() {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [activeTab, setActiveTab] = useState("users");
   const [saving, setSaving] = useState(false);
 
@@ -251,6 +253,60 @@ export default function Settings() {
                 <Box sx={{ py: 8, textAlign: "center" }}>
                   <Typography sx={{ color: "text.secondary" }}>No admin users found.</Typography>
                 </Box>
+              ) : isMobile ? (
+                /* MOBILE: Card Layout */
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                  {users.map((u) => {
+                    const uid = u._id || u.id;
+                    const isSelf = uid === currentUserId;
+                    return (
+                      <Box
+                        key={uid}
+                        className="mobile-card-enter"
+                        sx={{
+                          p: 2,
+                          borderRadius: "12px",
+                          border: "1px solid",
+                          borderColor: "divider",
+                          backgroundColor: "background.paper",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1.5 }}>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flex: 1 }}>
+                            <Box sx={{
+                              width: 40, height: 40, borderRadius: "10px",
+                              backgroundColor: isSelf ? "primary.main" : "action.selected",
+                              color: isSelf ? "primary.contrastText" : "text.primary",
+                              fontWeight: 700, fontSize: "0.875rem", display: "flex",
+                              alignItems: "center", justifyContent: "center", textTransform: "uppercase", flexShrink: 0,
+                            }}>
+                              {(u.name || "A")[0]}
+                            </Box>
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                              <Typography sx={{ fontSize: "0.875rem", fontWeight: 600, color: "text.primary" }}>
+                                {u.name} {isSelf && <span style={{ fontSize: "0.75rem", color: "text.secondary", fontStyle: "italic" }}>(You)</span>}
+                              </Typography>
+                              <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.25 }}>
+                                {u.email}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          {!isSelf && (
+                            <IconButton size="small" onClick={() => handleDeleteUser(uid, u.name)} sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}>
+                              <Trash2 size={15} />
+                            </IconButton>
+                          )}
+                        </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
+                          <Chip label={u.role || "admin"} size="small" sx={{ fontSize: "0.6875rem", fontWeight: 600, height: 22, backgroundColor: "action.selected", color: "text.primary" }} />
+                          <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                            {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : ""}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    );
+                  })}
+                </Box>
               ) : (
                 <TableContainer>
                   <Table size="small">
@@ -368,7 +424,8 @@ export default function Settings() {
                 onClose={() => setCreateOpen(false)}
                 maxWidth="sm"
                 fullWidth
-                PaperProps={{ sx: { borderRadius: "16px" } }}
+                fullScreen={isMobile}
+                PaperProps={{ sx: { borderRadius: isMobile ? 0 : "16px" } }}
               >
                 <DialogTitle sx={{ fontWeight: 700, fontSize: "1.125rem" }}>
                   Create New Admin User

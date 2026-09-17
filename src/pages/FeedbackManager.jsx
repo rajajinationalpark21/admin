@@ -21,7 +21,9 @@ import {
   MenuItem,
   InputAdornment,
   CircularProgress,
-  Button
+  Button,
+  useMediaQuery,
+  useTheme as useMuiTheme,
 } from "@mui/material";
 import { 
   Star, 
@@ -61,6 +63,8 @@ const ZONES = [
 ];
 
 const FeedbackManager = () => {
+  const muiTheme = useMuiTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down("md"));
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -628,7 +632,7 @@ const FeedbackManager = () => {
           </Box>
         </Paper>
 
-        {/* Material UI Table Container */}
+        {/* Content */}
         {loading ? (
           <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" py={12}>
             <CircularProgress size={32} sx={{ color: "#10B981", mb: 2 }} />
@@ -646,6 +650,112 @@ const FeedbackManager = () => {
               Try clearing search terms or selecting All Statuses.
             </Typography>
           </Paper>
+        ) : isMobile ? (
+          /* MOBILE: Card Layout */
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+            {displayedFeedbacks.map((item, idx) => {
+              const id = item._id || item.id || idx;
+              const isExpanded = expandedId === id;
+              const isBusy = updatingId === id;
+              const ratingVal = Number(item.rating) || 5;
+
+              return (
+                <Box
+                  key={id}
+                  className="mobile-card-enter"
+                  sx={{
+                    backgroundColor: "background.paper",
+                    borderRadius: "12px",
+                    border: "1px solid",
+                    borderColor: "divider",
+                    overflow: "hidden",
+                  }}
+                >
+                  {/* Header */}
+                  <Box sx={{ p: 2, pb: 1, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flex: 1 }}>
+                      <Box sx={{
+                        width: 36, height: 36, borderRadius: "10px",
+                        backgroundColor: "rgba(245, 158, 11, 0.1)", color: "#F59E0B",
+                        fontWeight: 700, fontSize: "0.8125rem", display: "flex",
+                        alignItems: "center", justifyContent: "center", textTransform: "uppercase", flexShrink: 0,
+                      }}>
+                        {(item.name || "V")[0]}
+                      </Box>
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography sx={{ fontSize: "0.875rem", fontWeight: 600, color: "text.primary", lineHeight: 1.3 }}>
+                          {item.name}
+                        </Typography>
+                        <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.25 }}>
+                          {item.location}{item.visitDate && ` • ${item.visitDate}`}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <IconButton size="small" onClick={() => handleDelete(id)} disabled={isBusy} sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}>
+                      <Trash2 size={15} />
+                    </IconButton>
+                  </Box>
+
+                  {/* Rating & Zone */}
+                  <Box sx={{ px: 2, pb: 1, display: "flex", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: "flex", gap: 0.25 }}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star key={s} size={12} className={s <= ratingVal ? "fill-amber-400 text-amber-400" : "text-gray-300"} />
+                      ))}
+                    </Box>
+                    <Typography sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary" }}>{ratingVal}.0</Typography>
+                    {item.zone && (
+                      <Chip label={item.zone} size="small" sx={{ height: 20, fontSize: "0.625rem", fontWeight: 600, backgroundColor: "action.hover", color: "text.secondary" }} />
+                    )}
+                    <Box sx={{ display: "flex", gap: 0.5, ml: "auto" }}>
+                      <Chip
+                        onClick={() => handleToggleStatus(item)}
+                        disabled={isBusy}
+                        label={item.status === "approved" ? "Live" : "Pending"}
+                        size="small"
+                        clickable
+                        sx={{
+                          height: 22, fontSize: "0.625rem", fontWeight: 700,
+                          backgroundColor: item.status === "approved" ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                          color: item.status === "approved" ? "#34D399" : "#FBBF24",
+                        }}
+                      />
+                      <Chip
+                        onClick={() => handleToggleVerified(item)}
+                        disabled={isBusy}
+                        icon={item.isVerified ? <ShieldCheck size={10} /> : <ShieldAlert size={10} />}
+                        label={item.isVerified ? "Verified" : "Unverified"}
+                        size="small"
+                        clickable
+                        sx={{
+                          height: 22, fontSize: "0.625rem", fontWeight: 600,
+                          backgroundColor: item.isVerified ? "rgba(16, 185, 129, 0.12)" : "rgba(107, 114, 128, 0.15)",
+                          color: item.isVerified ? "#34D399" : "#9CA3AF",
+                        }}
+                      />
+                    </Box>
+                  </Box>
+
+                  {/* Comment */}
+                  <Box sx={{ px: 2, pb: 2 }}>
+                    <Typography sx={{
+                      fontSize: "0.8125rem", color: "text.secondary", lineHeight: 1.5, fontStyle: "italic",
+                      display: "-webkit-box", WebkitLineClamp: isExpanded ? "unset" : 3,
+                      WebkitBoxOrient: "vertical", overflow: isExpanded ? "visible" : "hidden",
+                    }}>
+                      "{item.comment}"
+                    </Typography>
+                    {item.comment && item.comment.length > 90 && (
+                      <Box onClick={() => setExpandedId(isExpanded ? null : id)} sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 0.75, cursor: "pointer", color: "primary.main" }}>
+                        {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        <Typography sx={{ fontSize: "0.6875rem", fontWeight: 600 }}>{isExpanded ? "Less" : "Read more"}</Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              );
+            })}
+          </Box>
         ) : (
           <TableContainer component={Paper} elevation={0} sx={{ borderRadius: "12px", border: "1px solid", borderColor: "divider" }}>
             <Table size="small">
@@ -803,6 +913,23 @@ const FeedbackManager = () => {
               }}
             />
           </TableContainer>
+        )}
+
+        {/* Mobile Pagination */}
+        {isMobile && filteredFeedbacks.length > rowsPerPage && (
+          <Box sx={{ display: "flex", justifyContent: "center", gap: 1, mt: 2 }}>
+            <Button disabled={page === 0} onClick={() => setPage(page - 1)} size="small" variant="outlined" sx={{ borderRadius: "8px", textTransform: "none", minWidth: 44, minHeight: 44 }}>
+              Prev
+            </Button>
+            <Box sx={{ display: "flex", alignItems: "center", px: 2 }}>
+              <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary" }}>
+                {page + 1} / {Math.ceil(filteredFeedbacks.length / rowsPerPage)}
+              </Typography>
+            </Box>
+            <Button disabled={page >= Math.ceil(filteredFeedbacks.length / rowsPerPage) - 1} onClick={() => setPage(page + 1)} size="small" variant="outlined" sx={{ borderRadius: "8px", textTransform: "none", minWidth: 44, minHeight: 44 }}>
+              Next
+            </Button>
+          </Box>
         )}
       </main>
     </div>

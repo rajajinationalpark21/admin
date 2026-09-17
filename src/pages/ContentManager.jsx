@@ -163,6 +163,7 @@ export default function ContentManager() {
       <Box sx={{ maxWidth: "1200px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3 }}>
         {/* Tab Bar */}
         <Box
+          className="hide-scrollbar"
           sx={{
             display: "flex",
             alignItems: "center",
@@ -172,8 +173,10 @@ export default function ContentManager() {
             backgroundColor: "action.hover",
             border: "1px solid",
             borderColor: "divider",
-            mb: 3,
+            mb: { xs: 1.5, sm: 3 },
             overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
             flexWrap: { xs: "nowrap", md: "wrap" },
           }}
         >
@@ -189,7 +192,7 @@ export default function ContentManager() {
                   display: "flex",
                   alignItems: "center",
                   gap: 0.75,
-                  px: 2,
+                  px: { xs: 1.5, sm: 2 },
                   py: 1,
                   borderRadius: "8px",
                   fontSize: "0.8125rem",
@@ -201,6 +204,10 @@ export default function ContentManager() {
                   boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
                   transition: "all 0.15s ease",
                   whiteSpace: "nowrap",
+                  scrollSnapAlign: "start",
+                  minHeight: 40,
+                  flexShrink: 0,
+                  WebkitTapHighlightColor: "transparent",
                   "&:hover": { color: "text.primary" },
                 }}
               >
