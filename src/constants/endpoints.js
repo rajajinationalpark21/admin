@@ -1,9 +1,9 @@
 const rawBase =
-  import.meta.env.VITE_BASE_URL_API ||
   import.meta.env.VITE_API_BASE ||
+  import.meta.env.VITE_BASE_URL_API ||
   import.meta.env.VITE_API_URL ||
-  "https://backend-hbkg.onrender.com/api/";
-export const API_BASE = rawBase.endsWith("/") ? rawBase : `${rawBase}/`;
+  "https://backend-hbkg.onrender.com/api";
+export const API_BASE = rawBase.replace(/\/+$/, "") + "/";
 
 export const ADMIN_LOGIN = "admin/login";
 
