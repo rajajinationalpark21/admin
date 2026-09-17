@@ -1,11 +1,35 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import Header from "../components/common/Header";
-import { Save, Upload, Plus, Trash2 } from "lucide-react";
+import { Save, Upload, Plus, Trash2, Layers, Info, Compass, CheckCircle2, Image as ImageIcon, FileText } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  Paper,
+  CircularProgress,
+  IconButton,
+  Divider,
+  useTheme,
+  Checkbox,
+  FormGroup,
+  FormControlLabel
+} from "@mui/material";
 
-const ContentManager = () => {
+import BirdsTab from "../components/content/BirdsTab";
+import FaunaTab from "../components/content/FaunaTab";
+import FloraTab from "../components/content/FloraTab";
+import ButterfliesTab from "../components/content/ButterfliesTab";
+import ParkRulesTab from "../components/content/ParkRulesTab";
+import TicketsTab from "../components/content/TicketsTab";
+import HowToReachTab from "../components/content/HowToReachTab";
+import StayTab from "../components/content/StayTab";
+import BirdingAreasTab from "../components/content/BirdingAreasTab";
+import EcoTourismTab from "../components/content/EcoTourismTab";
+export default function ContentManager() {
+  const theme = useTheme();
   const [activeTab, setActiveTab] = useState("home");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -22,7 +46,12 @@ const ContentManager = () => {
     aboutTitle: "",
     aboutDescription: "",
     stats: { tigers: "", acres: "" },
+    featuredBlogs: [],
+    featuredGallery: [],
   });
+
+  const [allBlogs, setAllBlogs] = useState([]);
+  const [allGallery, setAllGallery] = useState([]);
 
   const [aboutContent, setAboutContent] = useState({
     title: "",
@@ -57,410 +86,356 @@ const ContentManager = () => {
         setLoading(false);
       }
     };
+
+    const fetchBlogs = async () => {
+      try {
+        const res = await api.get("blogs/get");
+        const blogs = res.data?.data?.blogs || res.data?.blogs || [];
+        setAllBlogs(Array.isArray(blogs) ? blogs : []);
+      } catch { setAllBlogs([]); }
+    };
+
+    const fetchGallery = async () => {
+      try {
+        const res = await api.get("gallery/get");
+        const images = res.data?.data?.images || res.data?.images || [];
+        setAllGallery(Array.isArray(images) ? images : []);
+      } catch { setAllGallery([]); }
+    };
+
     fetchContent();
+    fetchBlogs();
+    fetchGallery();
   }, []);
 
-  const handleSave = async () => {
+  const handleSave = async (section) => {
     setSaving(true);
     try {
-      await api.post("content/update", {
-        section: activeTab,
-        content: activeTab === "home" ? homeContent : activeTab === "about" ? aboutContent : safariContent,
+      const formData = new FormData();
+      formData.append("section", section);
+
+      if (section === "home") {
+        formData.append("content", JSON.stringify(homeContent));
+        if (homeContent.heroBanner instanceof File) {
+          formData.append("heroBanner", homeContent.heroBanner);
+        }
+      } else if (section === "about") {
+        formData.append("content", JSON.stringify(aboutContent));
+      } else if (section === "safari") {
+        formData.append("content", JSON.stringify(safariContent));
+      }
+
+      await api.post("content/update", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success("Content saved successfully!");
+      toast.success(`${section.toUpperCase()} content saved successfully!`);
     } catch (error) {
       toast.error("Failed to save content");
+      console.error(error);
     } finally {
       setSaving(false);
     }
   };
 
   const tabs = [
-    { id: "home", label: "Home" },
-    { id: "about", label: "About" },
-    { id: "safari", label: "Safari" },
+    { id: "home", label: "Home", icon: Layers },
+    { id: "about", label: "About", icon: Info },
+    { id: "safari", label: "Safari", icon: Compass },
+    { id: "birds", label: "Birds" },
+    { id: "fauna", label: "Fauna" },
+    { id: "flora", label: "Flora" },
+    { id: "butterflies", label: "Butterflies" },
+    { id: "parkRules", label: "Park Rules" },
+    { id: "tickets", label: "Tickets" },
+    { id: "howToReach", label: "How To Reach" },
+    { id: "stay", label: "Stay" },
+    { id: "birdingAreas", label: "Birding Areas" },
+    { id: "ecoTourism", label: "Eco-Tourism" },
   ];
 
   return (
-    <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Content Manager" />
-      <main className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
-        {/* Tabs */}
-        <div className="flex items-center gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+    <Box sx={{ minHeight: "100%", pb: 6 }}>
+      <Header
+        title="Park Content Manager"
+        subtitle="Manage all park website content from the database"
+      />
+
+      <Box sx={{ maxWidth: "1200px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3 }}>
+        {/* Tab Bar */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
+            p: 0.5,
+            borderRadius: "10px",
+            backgroundColor: "action.hover",
+            border: "1px solid",
+            borderColor: "divider",
+            mb: 3,
+            overflowX: "auto",
+            flexWrap: { xs: "nowrap", md: "wrap" },
+          }}
+        >
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <Box
+                component="button"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.75,
+                  px: 2,
+                  py: 1,
+                  borderRadius: "8px",
+                  fontSize: "0.8125rem",
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: "pointer",
+                  border: "none",
+                  backgroundColor: isActive ? "background.paper" : "transparent",
+                  color: isActive ? "text.primary" : "text.secondary",
+                  boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  transition: "all 0.15s ease",
+                  whiteSpace: "nowrap",
+                  "&:hover": { color: "text.primary" },
+                }}
+              >
+                {Icon && <Icon size={15} />}
+                <span>{tab.label}</span>
+              </Box>
+            );
+          })}
+        </Box>
 
         {loading ? (
-          <div className="text-center text-gray-400 mt-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p>Loading content...</p>
-          </div>
+          <Box sx={{ py: 12, textAlign: "center" }}>
+            <CircularProgress size={28} sx={{ mb: 2 }} />
+            <Typography sx={{ fontSize: "0.875rem", color: "text.secondary" }}>Loading park content...</Typography>
+          </Box>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-6 border border-gray-700"
+          <Paper
+            elevation={0}
+            sx={{
+              backgroundColor: "background.paper",
+              borderRadius: "12px",
+              border: "1px solid",
+              borderColor: "divider",
+              p: { xs: 2.5, sm: 4 },
+            }}
           >
             {/* Home Tab */}
             {activeTab === "home" && (
-              <div className="space-y-4 sm:space-y-6">
-                <h3 className="text-base sm:text-xl font-semibold text-white">Home Page Content</h3>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box>
+                  <Typography sx={{ fontSize: "1.125rem", fontWeight: 700, color: "text.primary" }}>Home Page Content</Typography>
+                  <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.5 }}>Configure the main website welcome message and hero visuals.</Typography>
+                </Box>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Tagline</label>
-                    <input
-                      type="text"
-                      value={homeContent.tagline}
-                      onChange={(e) => setHomeContent({ ...homeContent, tagline: e.target.value })}
-                      placeholder="e.g., Unleash Your Wild Side"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Hero Title</label>
-                    <input
-                      type="text"
-                      value={homeContent.heroTitle}
-                      onChange={(e) => setHomeContent({ ...homeContent, heroTitle: e.target.value })}
-                      placeholder="e.g., Experience the Heart of the Jungle"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+                  <TextField fullWidth label="Hero Tagline" value={homeContent.tagline} onChange={(e) => setHomeContent({ ...homeContent, tagline: e.target.value })} size="small" />
+                  <TextField fullWidth label="Hero Main Title" value={homeContent.heroTitle} onChange={(e) => setHomeContent({ ...homeContent, heroTitle: e.target.value })} size="small" />
+                </Box>
 
-                <div>
-                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Hero Subtitle</label>
-                  <textarea
-                    value={homeContent.heroSubtitle}
-                    onChange={(e) => setHomeContent({ ...homeContent, heroSubtitle: e.target.value })}
-                    placeholder="Brief description of the safari experience..."
-                    rows={3}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
+                <TextField fullWidth multiline rows={3} label="Hero Subtitle" value={homeContent.heroSubtitle} onChange={(e) => setHomeContent({ ...homeContent, heroSubtitle: e.target.value })} />
 
-                <div>
-                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Hero Banner Image</label>
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <label className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-600 transition-colors">
-                      <Upload size={16} className="text-green-400" />
-                      <span className="text-xs sm:text-sm text-gray-300">Choose Image</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (file) {
-                            setHomeContent({
-                              ...homeContent,
-                              heroBanner: file,
-                              heroBannerPreview: URL.createObjectURL(file),
-                            });
-                          }
-                        }}
-                      />
-                    </label>
-                    {homeContent.heroBannerPreview && (
-                      <img src={homeContent.heroBannerPreview} alt="Preview" className="h-12 sm:h-20 rounded-lg object-cover" />
-                    )}
-                  </div>
-                </div>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
+                  <Button variant="outlined" component="label" startIcon={<Upload size={16} />} sx={{ borderRadius: "12px", borderColor: "divider", color: "text.primary", textTransform: "none", fontWeight: 600, fontSize: "0.8125rem" }}>
+                    Upload Hero Banner
+                    <input type="file" accept="image/*" hidden onChange={(e) => { const file = e.target.files[0]; if (file) setHomeContent({ ...homeContent, heroBanner: file, heroBannerPreview: URL.createObjectURL(file) }); }} />
+                  </Button>
+                  {homeContent.heroBannerPreview && (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <img src={homeContent.heroBannerPreview} alt="Hero Banner Preview" style={{ width: 80, height: 48, objectFit: "cover", borderRadius: 8, border: `1px solid ${theme.palette.divider}` }} />
+                      <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>Banner image loaded</Typography>
+                    </Box>
+                  )}
+                </Box>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Timings</label>
-                    <input
-                      type="text"
-                      value={homeContent.timings}
-                      onChange={(e) => setHomeContent({ ...homeContent, timings: e.target.value })}
-                      placeholder="e.g., 06:00 AM - 06:00 PM"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Zones</label>
-                    <input
-                      type="text"
-                      value={homeContent.zones}
-                      onChange={(e) => setHomeContent({ ...homeContent, zones: e.target.value })}
-                      placeholder="e.g., Buffer, Core & River Safari"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Rules</label>
-                    <input
-                      type="text"
-                      value={homeContent.rules}
-                      onChange={(e) => setHomeContent({ ...homeContent, rules: e.target.value })}
-                      placeholder="e.g., Do's & Don'ts Guide"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+                  <TextField fullWidth label="Safari Timings" value={homeContent.timings} onChange={(e) => setHomeContent({ ...homeContent, timings: e.target.value })} size="small" />
+                  <TextField fullWidth label="Available Ranges & Zones" value={homeContent.zones} onChange={(e) => setHomeContent({ ...homeContent, zones: e.target.value })} size="small" />
+                </Box>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Stats - Tigers</label>
-                    <input
-                      type="text"
-                      value={homeContent.stats?.tigers || ""}
-                      onChange={(e) => setHomeContent({ ...homeContent, stats: { ...homeContent.stats, tigers: e.target.value } })}
-                      placeholder="e.g., 50+"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Stats - Acres</label>
-                    <input
-                      type="text"
-                      value={homeContent.stats?.acres || ""}
-                      onChange={(e) => setHomeContent({ ...homeContent, stats: { ...homeContent.stats, acres: e.target.value } })}
-                      placeholder="e.g., 120k"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
-              </div>
+                {/* Featured Blogs Selection */}
+                <Box>
+                  <Divider sx={{ my: 1 }} />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                    <FileText size={16} color={theme.palette.text.secondary} />
+                    <Typography sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.secondary" }}>Featured Blogs on Homepage</Typography>
+                  </Box>
+                  <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", mb: 1.5 }}>
+                    Select up to 3 blog posts to display on the homepage. If none selected, latest 3 are shown.
+                  </Typography>
+                  {allBlogs.length === 0 ? (
+                    <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", fontStyle: "italic" }}>No blogs found. Create blogs first.</Typography>
+                  ) : (
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, maxHeight: 200, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: "8px", p: 1 }}>
+                      {allBlogs.map((blog) => {
+                        const blogId = blog._id || blog.id;
+                        const isSelected = (homeContent.featuredBlogs || []).includes(blogId);
+                        return (
+                          <FormControlLabel
+                            key={blogId}
+                            control={
+                              <Checkbox
+                                size="small"
+                                checked={isSelected}
+                                onChange={(e) => {
+                                  const current = homeContent.featuredBlogs || [];
+                                  const next = e.target.checked
+                                    ? [...current, blogId]
+                                    : current.filter((id) => id !== blogId);
+                                  setHomeContent({ ...homeContent, featuredBlogs: next.slice(0, 3) });
+                                }}
+                                disabled={!isSelected && (homeContent.featuredBlogs || []).length >= 3}
+                              />
+                            }
+                            label={
+                              <Typography sx={{ fontSize: "0.8125rem", color: "text.primary" }}>
+                                {blog.title || "Untitled"}
+                                {blog.category && <span style={{ fontSize: "0.6875rem", color: theme.palette.text.secondary, marginLeft: 6 }}>({blog.category})</span>}
+                              </Typography>
+                            }
+                          />
+                        );
+                      })}
+                    </Box>
+                  )}
+                  {(homeContent.featuredBlogs || []).length > 0 && (
+                    <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary", mt: 0.5 }}>
+                      {(homeContent.featuredBlogs || []).length}/3 selected
+                    </Typography>
+                  )}
+                </Box>
+
+                {/* Featured Gallery Selection */}
+                <Box>
+                  <Divider sx={{ my: 1 }} />
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
+                    <ImageIcon size={16} color={theme.palette.text.secondary} />
+                    <Typography sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.secondary" }}>Featured Gallery on Homepage</Typography>
+                  </Box>
+                  <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", mb: 1.5 }}>
+                    Select up to 5 gallery images for the homepage mosaic. If none selected, default images are shown.
+                  </Typography>
+                  {allGallery.length === 0 ? (
+                    <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", fontStyle: "italic" }}>No gallery images found. Upload images first.</Typography>
+                  ) : (
+                    <Box sx={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 1, maxHeight: 260, overflowY: "auto", border: "1px solid", borderColor: "divider", borderRadius: "8px", p: 1 }}>
+                      {allGallery.map((img) => {
+                        const imgId = img._id || img.id;
+                        const imgSrc = img.url || img.src;
+                        const isSelected = (homeContent.featuredGallery || []).includes(imgId);
+                        return (
+                          <Box
+                            key={imgId}
+                            onClick={() => {
+                              const current = homeContent.featuredGallery || [];
+                              const next = isSelected
+                                ? current.filter((id) => id !== imgId)
+                                : [...current, imgId];
+                              setHomeContent({ ...homeContent, featuredGallery: next.slice(0, 5) });
+                            }}
+                            sx={{
+                              position: "relative",
+                              aspectRatio: "1",
+                              borderRadius: "8px",
+                              overflow: "hidden",
+                              cursor: "pointer",
+                              border: isSelected ? "2px solid" : "2px solid",
+                              borderColor: isSelected ? "primary.main" : "divider",
+                              opacity: !isSelected && (homeContent.featuredGallery || []).length >= 5 ? 0.5 : 1,
+                              "&:hover": { opacity: 1 },
+                            }}
+                          >
+                            <img src={imgSrc} alt={img.title || ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            {isSelected && (
+                              <Box sx={{ position: "absolute", top: 4, right: 4, width: 20, height: 20, borderRadius: "50%", backgroundColor: "primary.main", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                <CheckCircle2 size={14} color="white" />
+                              </Box>
+                            )}
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  )}
+                  {(homeContent.featuredGallery || []).length > 0 && (
+                    <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary", mt: 0.5 }}>
+                      {(homeContent.featuredGallery || []).length}/5 selected
+                    </Typography>
+                  )}
+                </Box>
+
+                <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 1 }}>
+                  <Button variant="contained" disabled={saving} onClick={() => handleSave("home")} startIcon={saving ? <CircularProgress size={16} /> : <Save size={16} />} sx={{ borderRadius: "12px", backgroundColor: "text.primary", color: "background.paper", fontWeight: 600, fontSize: "0.8125rem", textTransform: "none", py: 1, px: 2.5, "&:hover": { backgroundColor: "text.primary", opacity: 0.9 } }}>
+                    {saving ? "Saving..." : "Save Home Content"}
+                  </Button>
+                </Box>
+              </Box>
             )}
 
             {/* About Tab */}
             {activeTab === "about" && (
-              <div className="space-y-4 sm:space-y-6">
-                <h3 className="text-base sm:text-xl font-semibold text-white">About Page Content</h3>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box>
+                  <Typography sx={{ fontSize: "1.125rem", fontWeight: 700, color: "text.primary" }}>About Park Details</Typography>
+                  <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.5 }}>Information on conservation history, biodiversity, and reserve statistics.</Typography>
+                </Box>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Page Title</label>
-                    <input
-                      type="text"
-                      value={aboutContent.title}
-                      onChange={(e) => setAboutContent({ ...aboutContent, title: e.target.value })}
-                      placeholder="e.g., Our Wild Legacy"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Subtitle</label>
-                    <input
-                      type="text"
-                      value={aboutContent.subtitle}
-                      onChange={(e) => setAboutContent({ ...aboutContent, subtitle: e.target.value })}
-                      placeholder="e.g., Exploring the heart of nature..."
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+                  <TextField fullWidth label="Page Title" value={aboutContent.title} onChange={(e) => setAboutContent({ ...aboutContent, title: e.target.value })} size="small" />
+                  <TextField fullWidth label="Mission Title" value={aboutContent.missionTitle} onChange={(e) => setAboutContent({ ...aboutContent, missionTitle: e.target.value })} size="small" />
+                </Box>
 
-                <div>
-                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Mission Title</label>
-                  <input
-                    type="text"
-                    value={aboutContent.missionTitle}
-                    onChange={(e) => setAboutContent({ ...aboutContent, missionTitle: e.target.value })}
-                    placeholder="e.g., Preserving Nature & Wildlife"
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
+                <TextField fullWidth multiline rows={3} label="Mission Statement & Conservation Story" value={aboutContent.missionText} onChange={(e) => setAboutContent({ ...aboutContent, missionText: e.target.value })} />
 
-                <div>
-                  <label className="block text-xs sm:text-sm text-gray-400 mb-1">Mission Text</label>
-                  <textarea
-                    value={aboutContent.missionText}
-                    onChange={(e) => setAboutContent({ ...aboutContent, missionText: e.target.value })}
-                    placeholder="Describe the mission of the safari..."
-                    rows={4}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Tigers</label>
-                    <input
-                      type="text"
-                      value={aboutContent.stats?.tigers || ""}
-                      onChange={(e) => setAboutContent({ ...aboutContent, stats: { ...aboutContent.stats, tigers: e.target.value } })}
-                      placeholder="50+"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Birds</label>
-                    <input
-                      type="text"
-                      value={aboutContent.stats?.birds || ""}
-                      onChange={(e) => setAboutContent({ ...aboutContent, stats: { ...aboutContent.stats, birds: e.target.value } })}
-                      placeholder="300+"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Sq Km</label>
-                    <input
-                      type="text"
-                      value={aboutContent.stats?.sqKm || ""}
-                      onChange={(e) => setAboutContent({ ...aboutContent, stats: { ...aboutContent.stats, sqKm: e.target.value } })}
-                      placeholder="120"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Visitors</label>
-                    <input
-                      type="text"
-                      value={aboutContent.stats?.visitors || ""}
-                      onChange={(e) => setAboutContent({ ...aboutContent, stats: { ...aboutContent.stats, visitors: e.target.value } })}
-                      placeholder="1M+"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
-              </div>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 1 }}>
+                  <Button variant="contained" disabled={saving} onClick={() => handleSave("about")} startIcon={saving ? <CircularProgress size={16} /> : <Save size={16} />} sx={{ borderRadius: "12px", backgroundColor: "text.primary", color: "background.paper", fontWeight: 600, fontSize: "0.8125rem", textTransform: "none", py: 1, px: 2.5, "&:hover": { backgroundColor: "text.primary", opacity: 0.9 } }}>
+                    {saving ? "Saving..." : "Save About Content"}
+                  </Button>
+                </Box>
+              </Box>
             )}
 
             {/* Safari Tab */}
             {activeTab === "safari" && (
-              <div className="space-y-4 sm:space-y-6">
-                <h3 className="text-base sm:text-xl font-semibold text-white">Safari Information</h3>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <Box>
+                  <Typography sx={{ fontSize: "1.125rem", fontWeight: 700, color: "text.primary" }}>Safari Zones & Regulations</Typography>
+                  <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.5 }}>Safari trail parameters, gate permits, and visitor safety regulations.</Typography>
+                </Box>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Page Title</label>
-                    <input
-                      type="text"
-                      value={safariContent.title}
-                      onChange={(e) => setSafariContent({ ...safariContent, title: e.target.value })}
-                      placeholder="e.g., Safari Zones & Experiences"
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs sm:text-sm text-gray-400 mb-1">Subtitle</label>
-                    <input
-                      type="text"
-                      value={safariContent.subtitle}
-                      onChange={(e) => setSafariContent({ ...safariContent, subtitle: e.target.value })}
-                      placeholder="e.g., Explore the diverse habitats..."
-                      className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+                  <TextField fullWidth label="Safari Section Title" value={safariContent.title} onChange={(e) => setSafariContent({ ...safariContent, title: e.target.value })} size="small" />
+                  <TextField fullWidth label="Safari Section Subtitle" value={safariContent.subtitle} onChange={(e) => setSafariContent({ ...safariContent, subtitle: e.target.value })} size="small" />
+                </Box>
 
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-xs sm:text-sm text-gray-400">Animals Found</label>
-                    <button
-                      onClick={() => setSafariContent({ ...safariContent, animals: [...safariContent.animals, ""] })}
-                      className="flex items-center gap-1 px-2 sm:px-3 py-1 bg-green-600 text-white rounded-md text-xs sm:text-sm hover:bg-green-700"
-                    >
-                      <Plus size={12} /> Add
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {safariContent.animals.map((animal, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={animal}
-                          onChange={(e) => {
-                            const updated = [...safariContent.animals];
-                            updated[index] = e.target.value;
-                            setSafariContent({ ...safariContent, animals: updated });
-                          }}
-                          placeholder="e.g., Bengal Tiger"
-                          className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                        {safariContent.animals.length > 1 && (
-                          <button
-                            onClick={() => {
-                              const updated = safariContent.animals.filter((_, i) => i !== index);
-                              setSafariContent({ ...safariContent, animals: updated });
-                            }}
-                            className="p-2 text-red-400 hover:text-red-300"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-xs sm:text-sm text-gray-400">Rules & Guidelines</label>
-                    <button
-                      onClick={() => setSafariContent({ ...safariContent, rules: [...safariContent.rules, ""] })}
-                      className="flex items-center gap-1 px-2 sm:px-3 py-1 bg-green-600 text-white rounded-md text-xs sm:text-sm hover:bg-green-700"
-                    >
-                      <Plus size={12} /> Add
-                    </button>
-                  </div>
-                  <div className="space-y-2">
-                    {safariContent.rules.map((rule, index) => (
-                      <div key={index} className="flex gap-2">
-                        <input
-                          type="text"
-                          value={rule}
-                          onChange={(e) => {
-                            const updated = [...safariContent.rules];
-                            updated[index] = e.target.value;
-                            setSafariContent({ ...safariContent, rules: updated });
-                          }}
-                          placeholder="e.g., Maintain silence inside the zone"
-                          className="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
-                        {safariContent.rules.length > 1 && (
-                          <button
-                            onClick={() => {
-                              const updated = safariContent.rules.filter((_, i) => i !== index);
-                              setSafariContent({ ...safariContent, rules: updated });
-                            }}
-                            className="p-2 text-red-400 hover:text-red-300"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 1 }}>
+                  <Button variant="contained" disabled={saving} onClick={() => handleSave("safari")} startIcon={saving ? <CircularProgress size={16} /> : <Save size={16} />} sx={{ borderRadius: "12px", backgroundColor: "text.primary", color: "background.paper", fontWeight: 600, fontSize: "0.8125rem", textTransform: "none", py: 1, px: 2.5, "&:hover": { backgroundColor: "text.primary", opacity: 0.9 } }}>
+                    {saving ? "Saving..." : "Save Safari Content"}
+                  </Button>
+                </Box>
+              </Box>
             )}
 
-            {/* Save Button */}
-            <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-700 flex justify-end">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm"
-              >
-                <Save size={16} />
-                {saving ? "Saving..." : "Save Changes"}
-              </motion.button>
-            </div>
-          </motion.div>
+            {/* New Section Tabs */}
+            {activeTab === "birds" && <BirdsTab />}
+            {activeTab === "fauna" && <FaunaTab />}
+            {activeTab === "flora" && <FloraTab />}
+            {activeTab === "butterflies" && <ButterfliesTab />}
+            {activeTab === "parkRules" && <ParkRulesTab />}
+            {activeTab === "tickets" && <TicketsTab />}
+            {activeTab === "howToReach" && <HowToReachTab />}
+            {activeTab === "stay" && <StayTab />}
+            {activeTab === "birdingAreas" && <BirdingAreasTab />}
+            {activeTab === "ecoTourism" && <EcoTourismTab />}
+          </Paper>
         )}
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
-};
-
-export default ContentManager;
+}

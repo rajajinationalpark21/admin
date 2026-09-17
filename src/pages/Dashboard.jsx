@@ -1,41 +1,142 @@
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import Header from "../components/common/Header";
-import { Eye, FileText, Image, MessageSquare, TrendingUp, Users } from "lucide-react";
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip,
+  CircularProgress,
+  Button,
+  IconButton,
+  Menu,
+  MenuItem,
+  useTheme
+} from "@mui/material";
+import {
+  FileText,
+  Image as ImageIcon,
+  MessageSquare,
+  MessageSquareQuote,
+  ArrowUpRight,
+  ChevronDown,
+  Calendar,
+  ExternalLink,
+  ShieldCheck,
+  Star,
+  CheckCircle2,
+  Clock,
+  Sparkles
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import api from "../api/apiClient";
 
-const Dashboard = () => {
+// Vartaman AI style PurchaseCard
+const KpiCard = ({ icon: Icon, title, value, iconBg, iconColor, linkTo }) => {
+  return (
+    <Box
+      component={Link}
+      to={linkTo}
+      sx={{
+        flex: 1,
+        minWidth: { xs: "100%", sm: "240px" },
+        backgroundColor: "background.paper",
+        borderRadius: "12px",
+        p: { xs: 2, sm: 2.25 },
+        border: "1px solid",
+        borderColor: "divider",
+        textDecoration: "none",
+        color: "inherit",
+        display: "flex",
+        flexDirection: "column",
+        transition: "all 0.15s ease",
+        "&:hover": {
+          borderColor: "text.secondary",
+          transform: "translateY(-1px)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        },
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+          <Box
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: "10px",
+              backgroundColor: iconBg || "action.hover",
+              color: iconColor || "text.primary",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Icon size={18} />
+          </Box>
+          <Typography sx={{ fontSize: "0.8125rem", fontWeight: 500, color: "text.secondary" }}>
+            {title}
+          </Typography>
+        </Box>
+        <ArrowUpRight size={16} style={{ opacity: 0.4 }} />
+      </Box>
+
+      <Box sx={{ mt: "auto" }}>
+        <Typography sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem" }, fontWeight: 700, color: "text.primary", letterSpacing: "-0.02em" }}>
+          {value}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
+
+export default function Dashboard() {
+  const theme = useTheme();
   const [stats, setStats] = useState({
     blogs: 0,
     gallery: 0,
     inquiries: 0,
-    views: 0,
+    feedbacks: 0,
   });
   const [recentInquiries, setRecentInquiries] = useState([]);
+  const [recentFeedbacks, setRecentFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Time range selector
+  const [timeRange, setTimeRange] = useState("31 days");
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [blogRes, galleryRes, inquiryRes] = await Promise.allSettled([
+        const [blogRes, galleryRes, inquiryRes, feedbackRes] = await Promise.allSettled([
           api.get("blogs/get"),
           api.get("gallery/get"),
           api.get("contact/get"),
+          api.get("feedback/get"),
         ]);
 
         const blogs = blogRes.status === "fulfilled" ? (blogRes.value.data?.blogs || blogRes.value.data?.data || []) : [];
         const gallery = galleryRes.status === "fulfilled" ? (galleryRes.value.data?.images || galleryRes.value.data?.data || []) : [];
         const inquiries = inquiryRes.status === "fulfilled" ? (inquiryRes.value.data?.inquiries || inquiryRes.value.data?.data || []) : [];
+        const feedbacks = feedbackRes.status === "fulfilled" ? (feedbackRes.value.data?.feedbacks || feedbackRes.value.data?.data || []) : [];
 
         setStats({
           blogs: Array.isArray(blogs) ? blogs.length : 0,
           gallery: Array.isArray(gallery) ? gallery.length : 0,
           inquiries: Array.isArray(inquiries) ? inquiries.length : 0,
-          views: 0,
+          feedbacks: Array.isArray(feedbacks) ? feedbacks.length : 0,
         });
 
         if (Array.isArray(inquiries)) {
           setRecentInquiries(inquiries.slice(0, 5));
+        }
+        if (Array.isArray(feedbacks)) {
+          setRecentFeedbacks(feedbacks.slice(0, 5));
         }
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -47,125 +148,349 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  const statCards = [
-    { label: "Blogs", value: stats.blogs, icon: FileText, color: "from-orange-500 to-red-500" },
-    { label: "Photos", value: stats.gallery, icon: Image, color: "from-purple-500 to-indigo-500" },
-    { label: "Inquiries", value: stats.inquiries, icon: MessageSquare, color: "from-pink-500 to-rose-500" },
-    { label: "Views", value: stats.views, icon: Eye, color: "from-green-500 to-emerald-500" },
-  ];
-
   return (
-    <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Dashboard" subtitle="Welcome back to Rajaji National Park Admin" />
+    <Box sx={{ minHeight: "100%", pb: 6 }}>
+      <Header />
 
-      <main className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
-        {loading ? (
-          <div className="text-center text-gray-400 mt-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p>Loading dashboard...</p>
-          </div>
-        ) : (
-          <>
-            {/* Stats Grid */}
-            <motion.div
-              className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5 lg:grid-cols-4 mb-6 sm:mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+      <Box sx={{ maxWidth: "1400px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3 }}>
+        {/* Top Overview Bar */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <Box>
+            <Typography sx={{ fontSize: "1.25rem", fontWeight: 700, color: "text.primary" }}>
+              Overview
+            </Typography>
+            <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.25 }}>
+              Live metrics and incoming visitor interactions across Rajaji National Park.
+            </Typography>
+          </Box>
+
+          {/* Time Filter Button */}
+          <Box>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+              endIcon={<ChevronDown size={14} />}
+              startIcon={<Calendar size={14} />}
+              sx={{
+                borderRadius: "12px",
+                borderColor: "divider",
+                color: "text.primary",
+                backgroundColor: "background.paper",
+                textTransform: "none",
+                fontWeight: 600,
+                fontSize: "0.8125rem",
+                py: 0.75,
+                px: 1.5,
+                "&:hover": { borderColor: "text.secondary", backgroundColor: "action.hover" },
+              }}
             >
-              {statCards.map((card, index) => (
-                <motion.div
-                  key={card.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-3 sm:p-4 lg:p-6 border border-gray-700"
+              {timeRange}
+            </Button>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => setAnchorEl(null)}
+              PaperProps={{
+                sx: {
+                  borderRadius: "12px",
+                  border: "1px solid",
+                  borderColor: "divider",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                  minWidth: 140,
+                },
+              }}
+            >
+              {["7 days", "14 days", "31 days", "All time"].map((period) => (
+                <MenuItem
+                  key={period}
+                  selected={timeRange === period}
+                  onClick={() => {
+                    setTimeRange(period);
+                    setAnchorEl(null);
+                  }}
+                  sx={{ fontSize: "0.8125rem", fontWeight: timeRange === period ? 600 : 400 }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-400 text-xs sm:text-sm">{card.label}</p>
-                      <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mt-1">{card.value}</p>
-                    </div>
-                    <div className={`p-2 sm:p-3 rounded-full bg-gradient-to-r ${card.color}`}>
-                      <card.icon size={18} className="text-white sm:w-6 sm:h-6" />
-                    </div>
-                  </div>
-                </motion.div>
+                  {period}
+                </MenuItem>
               ))}
-            </motion.div>
+            </Menu>
+          </Box>
+        </Box>
 
-            {/* Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              {/* Quick Actions */}
-              <motion.div
-                className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-6 border border-gray-700"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
-                  <TrendingUp size={18} className="text-green-500 sm:w-5 sm:h-5" />
-                  Quick Actions
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  <a href="/blog" className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors">
-                    <FileText size={16} className="text-orange-400 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm text-gray-200">Write blog post</span>
-                  </a>
-                  <a href="/gallery" className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors">
-                    <Image size={16} className="text-purple-400 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm text-gray-200">Upload photos</span>
-                  </a>
-                  <a href="/content" className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors">
-                    <FileText size={16} className="text-blue-400 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm text-gray-200">Update content</span>
-                  </a>
-                  <a href="/inquiries" className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors">
-                    <MessageSquare size={16} className="text-pink-400 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm text-gray-200">View inquiries</span>
-                  </a>
-                </div>
-              </motion.div>
+        {/* 4 KPI Cards (Vartaman AI style) */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(4, 1fr)" },
+            gap: 2,
+            mb: 3.5,
+          }}
+        >
+          <KpiCard
+            icon={MessageSquareQuote}
+            title="Visitor Feedback"
+            value={loading ? "..." : stats.feedbacks}
+            iconBg="rgba(16, 185, 129, 0.12)"
+            iconColor="#10B981"
+            linkTo="/feedback"
+          />
+          <KpiCard
+            icon={MessageSquare}
+            title="Contact Inquiries"
+            value={loading ? "..." : stats.inquiries}
+            iconBg="rgba(59, 130, 246, 0.12)"
+            iconColor="#3B82F6"
+            linkTo="/inquiries"
+          />
+          <KpiCard
+            icon={FileText}
+            title="Published Blogs"
+            value={loading ? "..." : stats.blogs}
+            iconBg="rgba(249, 115, 22, 0.12)"
+            iconColor="#F97316"
+            linkTo="/blog"
+          />
+          <KpiCard
+            icon={ImageIcon}
+            title="Gallery Captures"
+            value={loading ? "..." : stats.gallery}
+            iconBg="rgba(139, 92, 246, 0.12)"
+            iconColor="#8B5CF6"
+            linkTo="/gallery"
+          />
+        </Box>
 
-              {/* Recent Inquiries */}
-              <motion.div
-                className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-6 border border-gray-700"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
-                  <Users size={18} className="text-pink-500 sm:w-5 sm:h-5" />
+        {/* Two Tables Grid: Recent Inquiries & Recent Feedback */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: 3 }}>
+          {/* Recent Inquiries Table */}
+          <Box
+            sx={{
+              backgroundColor: "background.paper",
+              borderRadius: "12px",
+              border: "1px solid",
+              borderColor: "divider",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                p: 2,
+                px: 2.5,
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                <Typography sx={{ fontSize: "0.9375rem", fontWeight: 700, color: "text.primary" }}>
                   Recent Inquiries
-                </h3>
-                {recentInquiries.length === 0 ? (
-                  <p className="text-gray-400 text-center py-4 text-sm">No inquiries yet</p>
-                ) : (
-                  <div className="space-y-2 sm:space-y-3">
-                    {recentInquiries.map((inquiry, index) => (
-                      <div key={inquiry._id || index} className="p-2 sm:p-3 rounded-lg bg-gray-700 border border-gray-600">
-                        <div className="flex items-center gap-2">
-                          <div className="h-7 w-7 rounded-full bg-gradient-to-r from-pink-400 to-rose-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                            {(inquiry.name || inquiry.firstName || "U").charAt(0)}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm text-white font-medium truncate">
-                              {inquiry.name || `${inquiry.firstName || ""} ${inquiry.lastName || ""}`}
-                            </p>
-                            <p className="text-xs text-gray-400 truncate">{inquiry.email || inquiry.message || "No message"}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-            </div>
-          </>
-        )}
-      </main>
-    </div>
-  );
-};
+                </Typography>
+                <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                  Visitor questions and safari permit requests
+                </Typography>
+              </Box>
+              <Button
+                component={Link}
+                to="/inquiries"
+                size="small"
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: "text.primary",
+                }}
+              >
+                View all
+              </Button>
+            </Box>
 
-export default Dashboard;
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "action.hover" }}>
+                    <TableCell sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary", py: 1.25 }}>VISITOR</TableCell>
+                    <TableCell sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary", py: 1.25 }}>DATE</TableCell>
+                    <TableCell sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary", py: 1.25 }}>STATUS</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                        <CircularProgress size={20} />
+                      </TableCell>
+                    </TableRow>
+                  ) : recentInquiries.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center" sx={{ py: 3, color: "text.secondary", fontSize: "0.8125rem" }}>
+                        No inquiries received yet.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    recentInquiries.map((inq) => (
+                      <TableRow key={inq._id || inq.id} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                        <TableCell sx={{ py: 1.5 }}>
+                          <Typography sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.primary" }}>
+                            {inq.name || "Anonymous"}
+                          </Typography>
+                          <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary" }}>
+                            {inq.email || inq.phone}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                          {inq.createdAt ? new Date(inq.createdAt).toLocaleDateString() : "Recent"}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={inq.status || "New"}
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: "0.6875rem",
+                              fontWeight: 600,
+                              borderRadius: "6px",
+                              backgroundColor: inq.status === "Replied" ? "rgba(16,185,129,0.12)" : "action.hover",
+                              color: inq.status === "Replied" ? "#10B981" : "text.secondary",
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+
+          {/* Recent Feedback Table */}
+          <Box
+            sx={{
+              backgroundColor: "background.paper",
+              borderRadius: "12px",
+              border: "1px solid",
+              borderColor: "divider",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                p: 2,
+                px: 2.5,
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box>
+                <Typography sx={{ fontSize: "0.9375rem", fontWeight: 700, color: "text.primary" }}>
+                  Visitor Feedback
+                </Typography>
+                <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
+                  Verified guest testimonials and star ratings
+                </Typography>
+              </Box>
+              <Button
+                component={Link}
+                to="/feedback"
+                size="small"
+                sx={{
+                  textTransform: "none",
+                  fontSize: "0.75rem",
+                  fontWeight: 600,
+                  color: "text.primary",
+                }}
+              >
+                View all
+              </Button>
+            </Box>
+
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "action.hover" }}>
+                    <TableCell sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary", py: 1.25 }}>GUEST</TableCell>
+                    <TableCell sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary", py: 1.25 }}>RATING</TableCell>
+                    <TableCell sx={{ fontSize: "0.6875rem", fontWeight: 700, color: "text.secondary", py: 1.25 }}>STATUS</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center" sx={{ py: 3 }}>
+                        <CircularProgress size={20} />
+                      </TableCell>
+                    </TableRow>
+                  ) : recentFeedbacks.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={3} align="center" sx={{ py: 3, color: "text.secondary", fontSize: "0.8125rem" }}>
+                        No feedback submitted yet.
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    recentFeedbacks.map((fb) => (
+                      <TableRow key={fb._id || fb.id} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+                        <TableCell sx={{ py: 1.5 }}>
+                          <Typography sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.primary" }}>
+                            {fb.name || "Guest"}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "0.6875rem",
+                              color: "text.secondary",
+                              maxWidth: 180,
+                              whiteSpace: "nowrap",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                            }}
+                          >
+                            {fb.feedback || fb.comment || "Safari experience"}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                            <Star size={13} fill="#F59E0B" color="#F59E0B" />
+                            <Typography sx={{ fontSize: "0.75rem", fontWeight: 600 }}>
+                              {fb.rating || 5}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={fb.status || (fb.isApproved ? "Approved" : "Pending")}
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: "0.6875rem",
+                              fontWeight: 600,
+                              borderRadius: "6px",
+                              backgroundColor: (fb.status === "Approved" || fb.isApproved) ? "rgba(16,185,129,0.12)" : "rgba(245,158,11,0.12)",
+                              color: (fb.status === "Approved" || fb.isApproved) ? "#10B981" : "#F59E0B",
+                            }}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
+  );
+}

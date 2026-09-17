@@ -1,32 +1,163 @@
-import { LayoutDashboard, FileText, Image, MessageSquare, Settings, TreePine, LogOut, Menu, X, ChevronLeft } from "lucide-react";
-import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Tooltip,
+  Avatar,
+  Chip,
+  useTheme,
+  useMediaQuery,
+  Drawer
+} from "@mui/material";
+import {
+  LayoutDashboard,
+  FileText,
+  Image as ImageIcon,
+  MessageSquare,
+  MessageSquareQuote,
+  Settings,
+  LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+  Menu,
+  X,
+  Compass,
+  Layers
+} from "lucide-react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 
-const SIDEBAR_ITEMS = [
-  { name: "Dashboard", icon: LayoutDashboard, color: "#10B981", href: "/dashboard" },
-  { name: "Content", icon: FileText, color: "#6366f1", href: "/content" },
-  { name: "Blog", icon: FileText, color: "#F97316", href: "/blog" },
-  { name: "Gallery", icon: Image, color: "#8B5CF6", href: "/gallery" },
-  { name: "Inquiries", icon: MessageSquare, color: "#EC4899", href: "/inquiries" },
-  { name: "Settings", icon: Settings, color: "#64748b", href: "/settings" },
+const COLLAPSED_WIDTH = 68;
+const EXPANDED_WIDTH = 230;
+
+const NAV_SECTIONS = [
+  {
+    group: "OVERVIEW",
+    items: [
+      { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+    ],
+  },
+  {
+    group: "CONTENT & PARK",
+    items: [
+      { label: "Park Content", icon: Layers, path: "/content" },
+      { label: "Wilderness Blog", icon: FileText, path: "/blog" },
+      { label: "Photo Gallery", icon: ImageIcon, path: "/gallery" },
+    ],
+  },
+  {
+    group: "VISITOR SERVICES",
+    items: [
+      { label: "Contact Inquiries", icon: MessageSquare, path: "/inquiries", badge: "Inbox" },
+      { label: "Visitor Feedback", icon: MessageSquareQuote, path: "/feedback", badge: "Live" },
+    ],
+  },
+  {
+    group: "SYSTEM",
+    items: [
+      { label: "Settings", icon: Settings, path: "/settings" },
+    ],
+  },
 ];
 
-const Sidebar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+const NavigationLabel = ({ icon: Icon, label, isActive, collapsed, badge, onClick }) => {
+  return (
+    <Box
+      onClick={onClick}
+      sx={{
+        height: 40,
+        px: collapsed ? 0 : 1.5,
+        my: 0.35,
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: collapsed ? "center" : "flex-start",
+        borderRadius: "8px",
+        cursor: "pointer",
+        backgroundColor: isActive ? "action.selected" : "transparent",
+        color: isActive ? "text.primary" : "text.secondary",
+        transition: "all 0.15s ease",
+        "&:hover": {
+          backgroundColor: "action.hover",
+          color: "text.primary",
+        },
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 20,
+          height: 20,
+          mr: collapsed ? 0 : 1.25,
+          color: isActive ? "text.primary" : "text.secondary",
+          shrink: 0,
+        }}
+      >
+        <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
+      </Box>
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+      {!collapsed && (
+        <>
+          <Typography
+            sx={{
+              fontSize: "0.875rem",
+              fontWeight: isActive ? 600 : 450,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              flex: 1,
+            }}
+          >
+            {label}
+          </Typography>
+          {badge && (
+            <Chip
+              label={badge}
+              size="small"
+              sx={{
+                height: 18,
+                fontSize: "0.6875rem",
+                fontWeight: 600,
+                borderRadius: "6px",
+                px: 0.5,
+                backgroundColor: isActive ? "text.primary" : "action.hover",
+                color: isActive ? "background.paper" : "text.secondary",
+                border: "none",
+                "& .MuiChip-label": { px: 0.5 },
+              }}
+            />
+          )}
+        </>
+      )}
+    </Box>
+  );
+};
+
+export default function Sidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      const saved = localStorage.getItem("safari_sidebar_collapsed");
+      return saved ? JSON.parse(saved) : false;
+    } catch {
+      return false;
+    }
+  });
+
+  const toggleCollapse = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    try {
+      localStorage.setItem("safari_sidebar_collapsed", JSON.stringify(next));
+    } catch {}
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
@@ -34,161 +165,351 @@ const Sidebar = () => {
     navigate("/");
   };
 
-  const handleNavClick = () => {
-    if (isMobile) {
-      setIsMobileMenuOpen(false);
-    }
+  const adminName = localStorage.getItem("adminName") || "Admin Officer";
+  const adminEmail = localStorage.getItem("adminEmail") || "wildbrookrajaji@gmail.com";
+
+  const renderContent = (isDrawer = false) => {
+    const isCollapsed = isDrawer ? false : collapsed;
+    const currentWidth = isDrawer ? 240 : (isCollapsed ? COLLAPSED_WIDTH : EXPANDED_WIDTH);
+
+    return (
+      <Box
+        sx={{
+          width: currentWidth,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "background.paper",
+          borderRight: "1px solid",
+          borderColor: "divider",
+          boxSizing: "border-box",
+          transition: "width 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflow: "hidden",
+        }}
+      >
+        {/* Brand Header */}
+        <Box
+          sx={{
+            height: 60,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: isCollapsed ? "center" : "space-between",
+            px: isCollapsed ? 1 : 2,
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            flexShrink: 0,
+          }}
+        >
+          <Box
+            component={Link}
+            to="/dashboard"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.25,
+              textDecoration: "none",
+              color: "inherit",
+              overflow: "hidden",
+            }}
+          >
+            <Box
+              sx={{
+                width: 32,
+                height: 32,
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: "action.hover",
+                overflow: "hidden",
+                flexShrink: 0,
+              }}
+            >
+              <img
+                src="/logo.png"
+                alt="Logo"
+                style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            </Box>
+            {!isCollapsed && (
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  sx={{
+                    fontSize: "0.9375rem",
+                    fontWeight: 800,
+                    letterSpacing: "-0.02em",
+                    color: "text.primary",
+                    lineHeight: 1.15,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Rajaji Safari
+                </Typography>
+                <Typography
+                  sx={{
+                    fontSize: "0.6875rem",
+                    fontWeight: 500,
+                    color: "text.secondary",
+                    lineHeight: 1,
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  Portal Console
+                </Typography>
+              </Box>
+            )}
+          </Box>
+
+          {!isCollapsed && !isDrawer && (
+            <IconButton
+              size="small"
+              onClick={toggleCollapse}
+              sx={{
+                color: "text.secondary",
+                borderRadius: "6px",
+                p: 0.5,
+                "&:hover": { color: "text.primary", backgroundColor: "action.hover" },
+              }}
+            >
+              <ChevronsLeft size={16} />
+            </IconButton>
+          )}
+        </Box>
+
+        {/* Navigation Items */}
+        <Box
+          sx={{
+            flex: 1,
+            px: isCollapsed ? 1 : 1.5,
+            py: 1.5,
+            overflowY: "auto",
+            overflowX: "hidden",
+            "&::-webkit-scrollbar": { display: "none" },
+            msOverflowStyle: "none",
+            scrollbarWidth: "none",
+          }}
+        >
+          {NAV_SECTIONS.map((section, idx) => (
+            <Box key={section.group} sx={{ mb: 2 }}>
+              {!isCollapsed && (
+                <Typography
+                  sx={{
+                    fontSize: "0.6875rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    color: "text.secondary",
+                    px: 1,
+                    mb: 0.5,
+                  }}
+                >
+                  {section.group}
+                </Typography>
+              )}
+              {section.items.map((item) => {
+                const isActive = location.pathname === item.path;
+                const content = (
+                  <NavigationLabel
+                    icon={item.icon}
+                    label={item.label}
+                    isActive={isActive}
+                    collapsed={isCollapsed}
+                    badge={item.badge}
+                    onClick={() => {
+                      navigate(item.path);
+                      if (isDrawer) setMobileOpen(false);
+                    }}
+                  />
+                );
+
+                if (isCollapsed) {
+                  return (
+                    <Tooltip key={item.path} title={item.label} placement="right" arrow>
+                      <Box>{content}</Box>
+                    </Tooltip>
+                  );
+                }
+                return <Box key={item.path}>{content}</Box>;
+              })}
+            </Box>
+          ))}
+        </Box>
+
+        {/* Collapsed Toggle Button at Bottom when collapsed */}
+        {isCollapsed && !isDrawer && (
+          <Box sx={{ p: 1, display: "flex", justifyContent: "center", borderTop: "1px solid", borderColor: "divider" }}>
+            <IconButton
+              size="small"
+              onClick={toggleCollapse}
+              sx={{
+                color: "text.secondary",
+                borderRadius: "6px",
+                p: 0.75,
+                "&:hover": { color: "text.primary", backgroundColor: "action.hover" },
+              }}
+            >
+              <ChevronsRight size={18} />
+            </IconButton>
+          </Box>
+        )}
+
+        {/* Bottom User Card */}
+        <Box
+          sx={{
+            p: isCollapsed ? 1 : 1.5,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            backgroundColor: "background.paper",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: isCollapsed ? "center" : "space-between",
+            gap: 1,
+          }}
+        >
+          {isCollapsed ? (
+            <Tooltip title={`Sign Out (${adminName})`} placement="right" arrow>
+              <IconButton
+                size="small"
+                onClick={handleLogout}
+                sx={{
+                  color: "error.main",
+                  borderRadius: "8px",
+                  p: 0.75,
+                  "&:hover": { backgroundColor: "action.hover" },
+                }}
+              >
+                <LogOut size={18} />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, minWidth: 0, flex: 1 }}>
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    fontSize: "0.8125rem",
+                    fontWeight: 700,
+                    backgroundColor: "text.primary",
+                    color: "background.paper",
+                  }}
+                >
+                  {adminName.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography
+                    sx={{
+                      fontSize: "0.8125rem",
+                      fontWeight: 600,
+                      color: "text.primary",
+                      lineHeight: 1.2,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {adminName}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      fontSize: "0.6875rem",
+                      color: "text.secondary",
+                      lineHeight: 1.1,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {adminEmail}
+                  </Typography>
+                </Box>
+              </Box>
+              <Tooltip title="Sign Out" arrow>
+                <IconButton
+                  size="small"
+                  onClick={handleLogout}
+                  sx={{
+                    color: "text.secondary",
+                    borderRadius: "6px",
+                    p: 0.75,
+                    "&:hover": { color: "error.main", backgroundColor: "action.hover" },
+                  }}
+                >
+                  <LogOut size={16} />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </Box>
+      </Box>
+    );
   };
 
-  // Mobile Bottom Navigation
+  // Mobile Top Bar + Drawer
   if (isMobile) {
     return (
       <>
-        {/* Mobile Top Bar */}
-        <div className="fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-gray-800 px-4 py-2.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-white p-0.5 flex items-center justify-center overflow-hidden">
-              <img src="/logo.png" alt="Rajaji Logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="text-white font-bold text-sm tracking-tight">Rajaji National Park</span>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="p-2 text-red-400 hover:bg-red-900/30 rounded-lg transition-colors"
-          >
-            <LogOut size={20} />
-          </button>
-        </div>
+        <Box
+          sx={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 56,
+            zIndex: 1200,
+            backgroundColor: "background.paper",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            px: 2,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+            <IconButton
+              size="small"
+              onClick={() => setMobileOpen(true)}
+              sx={{ color: "text.primary", p: 0.75 }}
+            >
+              <Menu size={20} />
+            </IconButton>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <img src="/logo.png" alt="Logo" style={{ width: 24, height: 24, objectFit: "contain" }} />
+              <Typography sx={{ fontSize: "0.9375rem", fontWeight: 700, color: "text.primary" }}>
+                Rajaji Safari
+              </Typography>
+            </Box>
+          </Box>
 
-        {/* Mobile Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 border-t border-gray-800 px-2 py-2 safe-area-inset">
-          <div className="flex justify-around items-center">
-            {SIDEBAR_ITEMS.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  onClick={handleNavClick}
-                  className="flex flex-col items-center py-1 px-2 rounded-lg transition-colors"
-                >
-                  <div
-                    className={`p-2 rounded-xl transition-all ${
-                      isActive
-                        ? "bg-green-600/20 scale-110"
-                        : "bg-transparent"
-                    }`}
-                  >
-                    <item.icon
-                      size={20}
-                      className={isActive ? "text-green-400" : "text-gray-500"}
-                    />
-                  </div>
-                  <span
-                    className={`text-[10px] mt-1 font-medium ${
-                      isActive ? "text-green-400" : "text-gray-500"
-                    }`}
-                  >
-                    {item.name}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
+          <IconButton
+            size="small"
+            onClick={handleLogout}
+            sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}
+          >
+            <LogOut size={18} />
+          </IconButton>
+        </Box>
+
+        <Drawer
+          anchor="left"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          PaperProps={{
+            sx: {
+              backgroundColor: "background.paper",
+              backgroundImage: "none",
+            },
+          }}
+        >
+          {renderContent(true)}
+        </Drawer>
       </>
     );
   }
 
-  // Desktop Sidebar
-  return (
-    <motion.div
-      className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 ${isSidebarOpen ? "w-64" : "w-20"}`}
-      animate={{ width: isSidebarOpen ? 256 : 80 }}
-    >
-      <div className="h-full bg-gray-800 bg-opacity-50 backdrop-blur-md p-4 flex flex-col border-r border-gray-700">
-        <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden">
-            <img src="/logo.png" alt="Rajaji Logo" className="w-full h-full object-contain" />
-          </div>
-          <AnimatePresence>
-            {isSidebarOpen && (
-              <motion.span
-                className="text-base font-bold text-white whitespace-nowrap overflow-hidden tracking-tight"
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2, delay: 0.3 }}
-              >
-                Rajaji National Park
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 rounded-full hover:bg-gray-700 transition-colors max-w-fit mb-4"
-        >
-          {isSidebarOpen ? <ChevronLeft size={24} /> : <Menu size={24} />}
-        </motion.button>
-
-        <nav className="flex-grow">
-          {SIDEBAR_ITEMS.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link key={item.href} to={item.href}>
-                <motion.div
-                  className={`flex items-center p-3 text-sm font-medium rounded-lg transition-colors mb-1 ${
-                    isActive
-                      ? "bg-gray-700 text-white"
-                      : "text-gray-400 hover:bg-gray-700 hover:text-gray-200"
-                  }`}
-                >
-                  <item.icon size={20} style={{ color: item.color, minWidth: "20px" }} />
-                  <AnimatePresence>
-                    {isSidebarOpen && (
-                      <motion.span
-                        className="ml-4 whitespace-nowrap"
-                        initial={{ opacity: 0, width: 0 }}
-                        animate={{ opacity: 1, width: "auto" }}
-                        exit={{ opacity: 0, width: 0 }}
-                        transition={{ duration: 0.2, delay: 0.3 }}
-                      >
-                        {item.name}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 mt-4 text-sm font-medium text-red-400 rounded-lg hover:bg-red-900/30 transition-colors"
-        >
-          <LogOut size={20} />
-          <AnimatePresence>
-            {isSidebarOpen && (
-              <motion.span
-                className="whitespace-nowrap"
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "auto" }}
-                exit={{ opacity: 0, width: 0 }}
-                transition={{ duration: 0.2, delay: 0.3 }}
-              >
-                Logout
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-      </div>
-    </motion.div>
-  );
-};
-
-export default Sidebar;
+  // Desktop Static Sidebar
+  return renderContent(false);
+}

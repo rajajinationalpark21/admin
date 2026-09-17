@@ -19,3 +19,9 @@ export const CONTENT_UPDATE = "content/update";
 
 export const SAFARI_GET = "safari/get";
 export const SAFARI_UPDATE = "safari/update";
+
+export const FEEDBACK_ADMIN_ALL = "feedback/admin/all";
+export const FEEDBACK_GET_ALL = "feedback/get";
+export const FEEDBACK_UPDATE = "feedback/update";
+export const FEEDBACK_DELETE = "feedback/delete";
+

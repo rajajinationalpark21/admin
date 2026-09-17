@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import Header from "../components/common/Header";
 import { Save, Key, User, Shield } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  Paper,
+  CircularProgress,
+  useTheme
+} from "@mui/material";
 
-const Settings = () => {
+export default function Settings() {
+  const theme = useTheme();
   const [activeTab, setActiveTab] = useState("profile");
   const [saving, setSaving] = useState(false);
 
   const [profile, setProfile] = useState({
-    name: "Admin",
+    name: "Admin Officer",
     email: localStorage.getItem("adminEmail") || "admin@junglesafari.com",
   });
 
@@ -24,6 +33,8 @@ const Settings = () => {
     setSaving(true);
     try {
       await api.patch("admin/update-profile", profile);
+      localStorage.setItem("adminName", profile.name);
+      localStorage.setItem("adminEmail", profile.email);
       toast.success("Profile updated successfully!");
     } catch (error) {
       toast.error("Failed to update profile");
@@ -58,135 +69,192 @@ const Settings = () => {
   };
 
   const tabs = [
-    { id: "profile", label: "Profile", icon: User },
-    { id: "password", label: "Change Password", icon: Key },
+    { id: "profile", label: "Admin Profile", icon: User },
+    { id: "password", label: "Security & Password", icon: Key },
   ];
 
   return (
-    <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Settings" />
-      <main className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-                activeTab === tab.id
-                  ? "bg-green-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-            >
-              <tab.icon size={14} className="sm:w-4 sm:h-4" />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+    <Box sx={{ minHeight: "100%", pb: 6 }}>
+      <Header title="System Settings" subtitle="Manage your officer profile credentials and portal security" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-6 border border-gray-700 max-w-2xl"
+      <Box sx={{ maxWidth: "1000px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3 }}>
+        {/* Segmented Tabs Bar */}
+        <Box
+          sx={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 0.5,
+            p: 0.5,
+            borderRadius: "10px",
+            backgroundColor: "action.hover",
+            border: "1px solid",
+            borderColor: "divider",
+            mb: 3,
+          }}
+        >
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <Box
+                component="button"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  px: 2,
+                  py: 1,
+                  borderRadius: "8px",
+                  fontSize: "0.8125rem",
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: "pointer",
+                  border: "none",
+                  backgroundColor: isActive ? "background.paper" : "transparent",
+                  color: isActive ? "text.primary" : "text.secondary",
+                  boxShadow: isActive ? "0 1px 3px rgba(0,0,0,0.08)" : "none",
+                  transition: "all 0.15s ease",
+                  "&:hover": { color: "text.primary" },
+                }}
+              >
+                <Icon size={16} />
+                <span>{tab.label}</span>
+              </Box>
+            );
+          })}
+        </Box>
+
+        {/* Form Container */}
+        <Paper
+          elevation={0}
+          sx={{
+            backgroundColor: "background.paper",
+            borderRadius: "12px",
+            border: "1px solid",
+            borderColor: "divider",
+            p: { xs: 2.5, sm: 4 },
+          }}
         >
           {activeTab === "profile" && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
-                  {profile.name.charAt(0)}
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-white">{profile.name}</h3>
-                  <p className="text-xs sm:text-sm text-gray-400">{profile.email}</p>
-                </div>
-              </div>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <Box>
+                <Typography sx={{ fontSize: "1.125rem", fontWeight: 700, color: "text.primary" }}>
+                  Officer Profile Information
+                </Typography>
+                <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.5 }}>
+                  Update your contact details displayed in the administrative portal.
+                </Typography>
+              </Box>
 
-              <div>
-                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Name</label>
-                <input
-                  type="text"
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+                <TextField
+                  fullWidth
+                  label="Officer Full Name"
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  size="small"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Email</label>
-                <input
+                <TextField
+                  fullWidth
+                  label="Official Email Address"
                   type="email"
                   value={profile.email}
                   onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  size="small"
                 />
-              </div>
+              </Box>
 
-              <button
-                onClick={handleProfileSave}
-                disabled={saving}
-                className="flex items-center gap-2 px-4 sm:px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 text-sm"
-              >
-                <Save size={14} />
-                {saving ? "Saving..." : "Save Profile"}
-              </button>
-            </div>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 1 }}>
+                <Button
+                  variant="contained"
+                  disabled={saving}
+                  onClick={handleProfileSave}
+                  startIcon={saving ? <CircularProgress size={16} /> : <Save size={16} />}
+                  sx={{
+                    borderRadius: "12px",
+                    backgroundColor: "text.primary",
+                    color: "background.paper",
+                    fontWeight: 600,
+                    fontSize: "0.8125rem",
+                    textTransform: "none",
+                    py: 1,
+                    px: 2.5,
+                    "&:hover": { backgroundColor: "text.primary", opacity: 0.9 },
+                  }}
+                >
+                  {saving ? "Saving Changes..." : "Save Profile"}
+                </Button>
+              </Box>
+            </Box>
           )}
 
           {activeTab === "password" && (
-            <form onSubmit={handlePasswordChange} className="space-y-4 sm:space-y-6">
-              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
-                <Shield size={20} className="text-green-500 sm:w-6 sm:h-6" />
-                <h3 className="text-base sm:text-lg font-semibold text-white">Change Password</h3>
-              </div>
+            <Box component="form" onSubmit={handlePasswordChange} sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+              <Box>
+                <Typography sx={{ fontSize: "1.125rem", fontWeight: 700, color: "text.primary" }}>
+                  Update Portal Password
+                </Typography>
+                <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.5 }}>
+                  Ensure your account is protected with a secure password.
+                </Typography>
+              </Box>
 
-              <div>
-                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Current Password</label>
-                <input
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5, maxWidth: "540px" }}>
+                <TextField
+                  fullWidth
                   type="password"
+                  label="Current Password"
                   value={passwords.currentPassword}
                   onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
+                  size="small"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm text-gray-400 mb-1">New Password</label>
-                <input
+                <TextField
+                  fullWidth
                   type="password"
+                  label="New Password"
                   value={passwords.newPassword}
                   onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
-                  minLength={6}
+                  size="small"
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm text-gray-400 mb-1">Confirm New Password</label>
-                <input
+                <TextField
+                  fullWidth
                   type="password"
+                  label="Confirm New Password"
                   value={passwords.confirmPassword}
                   onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
-                  className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 sm:px-4 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   required
-                  minLength={6}
+                  size="small"
                 />
-              </div>
+              </Box>
 
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center gap-2 px-4 sm:px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 text-sm"
-              >
-                <Key size={14} />
-                {saving ? "Updating..." : "Change Password"}
-              </button>
-            </form>
+              <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 1 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={saving}
+                  startIcon={saving ? <CircularProgress size={16} /> : <Key size={16} />}
+                  sx={{
+                    borderRadius: "12px",
+                    backgroundColor: "text.primary",
+                    color: "background.paper",
+                    fontWeight: 600,
+                    fontSize: "0.8125rem",
+                    textTransform: "none",
+                    py: 1,
+                    px: 2.5,
+                    "&:hover": { backgroundColor: "text.primary", opacity: 0.9 },
+                  }}
+                >
+                  {saving ? "Updating..." : "Update Password"}
+                </Button>
+              </Box>
+            </Box>
           )}
-        </motion.div>
-      </main>
-    </div>
+        </Paper>
+      </Box>
+    </Box>
   );
-};
-
-export default Settings;
+}
