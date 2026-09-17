@@ -50,29 +50,7 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      let res;
-      try {
-        res = await api.post("admin/login", { email, password });
-      } catch (networkErr) {
-        // Fallback demo authentication if offline or demo credentials
-        if (
-          (email === "admin@dashb.com" && password === "password123") ||
-          (email === "admin@junglesafari.com" && password === "admin123") ||
-          (email === "wildbrookrajaji@gmail.com")
-        ) {
-          res = {
-            data: {
-              token: "demo-admin-token-" + Date.now(),
-              admin: {
-                name: "Vansh (Super Admin)",
-                email: email,
-              },
-            },
-          };
-        } else {
-          throw networkErr;
-        }
-      }
+      const res = await api.post("admin/login", { email, password });
 
       if (res?.data?.token) {
         localStorage.setItem("isAuthenticated", "true");
