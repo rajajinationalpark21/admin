@@ -115,22 +115,22 @@ export default function ContentManager() {
       formData.append("section", section);
 
       if (section === "home") {
-        formData.append("content", JSON.stringify(homeContent));
-        if (homeContent.heroBanner instanceof File) {
-          formData.append("heroBanner", homeContent.heroBanner);
+        const payload = { ...homeContent };
+        if (payload.heroBanner instanceof File) {
+          formData.append("heroBanner", payload.heroBanner);
+          payload.heroBanner = "";
         }
+        formData.append("content", JSON.stringify(payload));
       } else if (section === "about") {
         formData.append("content", JSON.stringify(aboutContent));
       } else if (section === "safari") {
         formData.append("content", JSON.stringify(safariContent));
       }
 
-      await api.post("content/update", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post("content/update", formData);
       toast.success(`${section.toUpperCase()} content saved successfully!`);
     } catch (error) {
-      toast.error("Failed to save content");
+      toast.error(error.response?.data?.message || "Failed to save content");
       console.error(error);
     } finally {
       setSaving(false);
