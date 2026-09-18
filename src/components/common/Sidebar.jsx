@@ -23,7 +23,8 @@ import {
   Menu,
   X,
   Compass,
-  Layers
+  Layers,
+  CalendarCheck
 } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
@@ -50,6 +51,7 @@ const NAV_SECTIONS = [
     items: [
       { label: "Contact Inquiries", icon: MessageSquare, path: "/inquiries", badge: "Inbox" },
       { label: "Visitor Feedback", icon: MessageSquareQuote, path: "/feedback", badge: "Live" },
+      { label: "Safari Bookings", icon: CalendarCheck, path: "/bookings" },
     ],
   },
   {

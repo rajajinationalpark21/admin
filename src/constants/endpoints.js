@@ -34,3 +34,7 @@ export const ADMIN_USERS_GET = "admin/users";
 export const ADMIN_USER_CREATE = "admin/create-user";
 export const ADMIN_USER_DELETE = "admin/delete-user";
 
+export const BOOKINGS_GET = "booking/get";
+export const BOOKINGS_UPDATE = "booking/update";
+export const BOOKINGS_DELETE = "booking/delete";
+

@@ -11,6 +11,7 @@ import BlogManager from "./pages/BlogManager";
 import GalleryManager from "./pages/GalleryManager";
 import InquiryManager from "./pages/InquiryManager";
 import FeedbackManager from "./pages/FeedbackManager";
+import BookingManager from "./pages/BookingManager";
 import Settings from "./pages/Settings";
 import LoginPage from "./pages/Login-Page";
 import { ToastContainer } from "react-toastify";
@@ -53,6 +54,7 @@ function AdminShell() {
             <Route path="/gallery" element={<ProtectedRoute><GalleryManager /></ProtectedRoute>} />
             <Route path="/inquiries" element={<ProtectedRoute><InquiryManager /></ProtectedRoute>} />
             <Route path="/feedback" element={<ProtectedRoute><FeedbackManager /></ProtectedRoute>} />
+            <Route path="/bookings" element={<ProtectedRoute><BookingManager /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="*" element={<LoginPage />} />
           </Routes>

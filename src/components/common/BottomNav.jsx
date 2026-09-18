@@ -10,6 +10,7 @@ import {
   MessageSquareQuote,
   Settings,
   LogOut,
+  CalendarCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
 const MORE_ITEMS = [
   { label: "Inquiries", icon: MessageSquare, path: "/inquiries" },
   { label: "Reviews", icon: MessageSquareQuote, path: "/feedback" },
+  { label: "Bookings", icon: CalendarCheck, path: "/bookings" },
   { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
@@ -30,7 +32,7 @@ export default function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isMoreOpen = location.pathname === "/inquiries" || location.pathname === "/feedback" || location.pathname === "/settings";
+  const isMoreOpen = location.pathname === "/inquiries" || location.pathname === "/feedback" || location.pathname === "/bookings" || location.pathname === "/settings";
   const activePath = location.pathname;
 
   return (
