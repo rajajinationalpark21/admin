@@ -158,17 +158,20 @@ export const getMuiTheme = (themeName = "light") => {
         "Arial",
         "sans-serif",
       ].join(","),
-      h1: { fontWeight: 700, letterSpacing: "-0.025em" },
-      h2: { fontWeight: 700, letterSpacing: "-0.025em" },
-      h3: { fontWeight: 600, letterSpacing: "-0.02em" },
-      h4: { fontWeight: 600, letterSpacing: "-0.015em" },
-      h5: { fontWeight: 600 },
-      h6: { fontWeight: 600, fontSize: "1rem" },
-      subtitle1: { fontSize: "0.875rem" },
+      fontSize: 13,
+      htmlFontSize: 13.5,
+      h1: { fontWeight: 700, fontSize: "1.4rem", letterSpacing: "-0.025em" },
+      h2: { fontWeight: 700, fontSize: "1.25rem", letterSpacing: "-0.025em" },
+      h3: { fontWeight: 600, fontSize: "1.125rem", letterSpacing: "-0.02em" },
+      h4: { fontWeight: 600, fontSize: "1rem", letterSpacing: "-0.015em" },
+      h5: { fontWeight: 600, fontSize: "0.9375rem", letterSpacing: "-0.01em" },
+      h6: { fontWeight: 600, fontSize: "0.875rem" },
+      subtitle1: { fontSize: "0.8125rem" },
       subtitle2: { fontSize: "0.75rem" },
-      body1: { fontSize: "0.875rem" },
-      body2: { fontSize: "0.8125rem" },
-      button: { textTransform: "none", fontWeight: 600 },
+      body1: { fontSize: "0.8125rem" },
+      body2: { fontSize: "0.75rem" },
+      button: { textTransform: "none", fontWeight: 600, fontSize: "0.8125rem" },
+      caption: { fontSize: "0.6875rem" },
     },
     shape: {
       borderRadius: 10,
@@ -232,8 +235,8 @@ export const getMuiTheme = (themeName = "light") => {
         styleOverrides: {
           root: {
             borderBottom: `1px solid ${paletteConfig.divider}`,
-            fontSize: "0.8125rem",
-            padding: "12px 16px",
+            fontSize: "0.78125rem",
+            padding: "8px 12px",
           },
           head: {
             color: paletteConfig.text.secondary,
@@ -241,6 +244,7 @@ export const getMuiTheme = (themeName = "light") => {
             textTransform: "uppercase",
             fontSize: "0.6875rem",
             letterSpacing: "0.05em",
+            padding: "8px 12px",
             backgroundColor: paletteConfig.tableHeadBg,
           },
           body: {
@@ -277,18 +281,19 @@ export const getMuiTheme = (themeName = "light") => {
           root: {
             borderRadius: 6,
             fontWeight: 600,
-            fontSize: "0.75rem",
-            height: 24,
+            fontSize: "0.6875rem",
+            height: 22,
           },
         },
       },
       MuiButton: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
+            borderRadius: 7,
             fontWeight: 600,
             textTransform: "none",
-            padding: "6px 14px",
+            fontSize: "0.78125rem",
+            padding: "4.5px 11px",
             boxShadow: "none",
             "&:hover": {
               boxShadow: "none",
@@ -300,8 +305,8 @@ export const getMuiTheme = (themeName = "light") => {
         styleOverrides: {
           root: {
             backgroundColor: paletteConfig.inputBg,
-            borderRadius: 8,
-            fontSize: "0.875rem",
+            borderRadius: 7,
+            fontSize: "0.8125rem",
             transition: "border-color 0.15s ease, box-shadow 0.15s ease",
             "& .MuiOutlinedInput-notchedOutline": {
               borderColor: paletteConfig.inputBorder,
@@ -321,7 +326,7 @@ export const getMuiTheme = (themeName = "light") => {
             },
           },
           input: {
-            padding: "8.5px 14px",
+            padding: "6.5px 12px",
             color: paletteConfig.text.primary,
             "&::placeholder": {
               color: paletteConfig.mode === "light" 
@@ -335,8 +340,9 @@ export const getMuiTheme = (themeName = "light") => {
       MuiSelect: {
         styleOverrides: {
           select: {
-            paddingTop: "8.5px",
-            paddingBottom: "8.5px",
+            paddingTop: "6.5px",
+            paddingBottom: "6.5px",
+            fontSize: "0.8125rem",
             display: "flex",
             alignItems: "center",
           },
@@ -350,7 +356,7 @@ export const getMuiTheme = (themeName = "light") => {
           paper: {
             backgroundColor: paletteConfig.background.paper,
             border: `1px solid ${paletteConfig.divider}`,
-            borderRadius: 10,
+            borderRadius: 8,
             boxShadow: paletteConfig.mode === "light"
               ? "0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04)"
               : "0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.5)",
@@ -360,10 +366,10 @@ export const getMuiTheme = (themeName = "light") => {
       MuiMenuItem: {
         styleOverrides: {
           root: {
-            fontSize: "0.8125rem",
-            padding: "8px 14px",
+            fontSize: "0.78125rem",
+            padding: "6px 12px",
             borderRadius: 6,
-            margin: "2px 6px",
+            margin: "2px 5px",
             transition: "all 0.15s ease",
             "&:hover": {
               backgroundColor: paletteConfig.tableRowHover,

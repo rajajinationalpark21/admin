@@ -86,7 +86,7 @@ const KpiCard = ({ icon: Icon, title, value, iconBg, iconColor, linkTo }) => {
       </Box>
 
       <Box sx={{ mt: "auto" }}>
-        <Typography sx={{ fontSize: { xs: "1.5rem", sm: "1.75rem" }, fontWeight: 700, color: "text.primary", letterSpacing: "-0.02em" }}>
+        <Typography sx={{ fontSize: { xs: "1.25rem", sm: "1.45rem" }, fontWeight: 700, color: "text.primary", letterSpacing: "-0.02em" }}>
           {value}
         </Typography>
       </Box>

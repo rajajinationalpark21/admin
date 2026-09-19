@@ -37,7 +37,7 @@ export default function Header({ title, subtitle }) {
           maxWidth: "1400px",
           mx: "auto",
           px: { xs: 2, sm: 3, lg: 4 },
-          py: 1.75,
+          py: 1.1,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -48,14 +48,14 @@ export default function Header({ title, subtitle }) {
         <Box sx={{ minWidth: 0 }}>
           <Typography
             sx={{
-              fontSize: "0.75rem",
+              fontSize: "0.6875rem",
               fontWeight: 500,
               color: "text.secondary",
               letterSpacing: "0.01em",
               display: "flex",
               alignItems: "center",
               gap: 0.5,
-              mb: 0.25,
+              mb: 0.15,
             }}
           >
             <span>safari /</span>
@@ -65,7 +65,7 @@ export default function Header({ title, subtitle }) {
           </Typography>
           <Typography
             sx={{
-              fontSize: { xs: "1.125rem", sm: "1.25rem" },
+              fontSize: { xs: "0.9375rem", sm: "1.0625rem" },
               fontWeight: 700,
               color: "text.primary",
               letterSpacing: "-0.02em",
@@ -76,14 +76,14 @@ export default function Header({ title, subtitle }) {
             <span>{adminName}</span>
           </Typography>
           {subtitle && (
-            <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.25 }}>
+            <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary", mt: 0.2 }}>
               {subtitle}
             </Typography>
           )}
         </Box>
 
         {/* Right Action Bar */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.25, flexShrink: 0 }}>
           {/* Live Website Link */}
           <Button
             component="a"
@@ -92,18 +92,18 @@ export default function Header({ title, subtitle }) {
             rel="noopener noreferrer"
             variant="outlined"
             size="small"
-            startIcon={<ExternalLink size={14} />}
+            startIcon={<ExternalLink size={13} />}
             sx={{
               display: { xs: "none", sm: "inline-flex" },
               textTransform: "none",
-              fontSize: "0.8125rem",
+              fontSize: "0.75rem",
               fontWeight: 600,
-              borderRadius: "12px",
+              borderRadius: "8px",
               borderColor: "divider",
               color: "text.primary",
               backgroundColor: "background.paper",
-              py: 0.75,
-              px: 1.5,
+              py: 0.5,
+              px: 1.2,
               "&:hover": {
                 borderColor: "text.secondary",
                 backgroundColor: "action.hover",

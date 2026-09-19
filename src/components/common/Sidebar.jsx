@@ -28,8 +28,8 @@ import {
 } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
-const COLLAPSED_WIDTH = 68;
-const EXPANDED_WIDTH = 230;
+const COLLAPSED_WIDTH = 62;
+const EXPANDED_WIDTH = 216;
 
 const NAV_SECTIONS = [
   {
@@ -67,14 +67,14 @@ const NavigationLabel = ({ icon: Icon, label, isActive, collapsed, badge, onClic
     <Box
       onClick={onClick}
       sx={{
-        height: 40,
-        px: collapsed ? 0 : 1.5,
-        my: 0.35,
+        height: 35,
+        px: collapsed ? 0 : 1.25,
+        my: 0.15,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
         justifyContent: collapsed ? "center" : "flex-start",
-        borderRadius: "8px",
+        borderRadius: "7px",
         cursor: "pointer",
         backgroundColor: isActive ? "action.selected" : "transparent",
         color: isActive ? "text.primary" : "text.secondary",
@@ -90,21 +90,21 @@ const NavigationLabel = ({ icon: Icon, label, isActive, collapsed, badge, onClic
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          width: 20,
-          height: 20,
-          mr: collapsed ? 0 : 1.25,
+          width: 18,
+          height: 18,
+          mr: collapsed ? 0 : 1.1,
           color: isActive ? "text.primary" : "text.secondary",
           shrink: 0,
         }}
       >
-        <Icon size={18} strokeWidth={isActive ? 2.2 : 1.8} />
+        <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} />
       </Box>
 
       {!collapsed && (
         <>
           <Typography
             sx={{
-              fontSize: "0.875rem",
+              fontSize: "0.8125rem",
               fontWeight: isActive ? 600 : 450,
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -295,16 +295,16 @@ export default function Sidebar() {
           }}
         >
           {NAV_SECTIONS.map((section, idx) => (
-            <Box key={section.group} sx={{ mb: 2 }}>
+            <Box key={section.group} sx={{ mb: 1.35 }}>
               {!isCollapsed && (
                 <Typography
                   sx={{
-                    fontSize: "0.6875rem",
+                    fontSize: "0.625rem",
                     fontWeight: 700,
                     letterSpacing: "0.08em",
                     color: "text.secondary",
                     px: 1,
-                    mb: 0.5,
+                    mb: 0.35,
                   }}
                 >
                   {section.group}

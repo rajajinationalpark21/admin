@@ -3,13 +3,31 @@
 @tailwind utilities;
 
 html {
+  font-size: 13.5px;
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
 }
 
+@media (min-width: 1440px) {
+  html {
+    font-size: 13px;
+  }
+}
+
 body {
   overscroll-behavior-y: none;
+  font-size: 0.8125rem;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Compact, proportional desktop scaling to eliminate zoomed-in appearance */
+@media (min-width: 768px) {
+  body {
+    zoom: 0.92;
+  }
 }
 
 /* Smooth scrolling container */
