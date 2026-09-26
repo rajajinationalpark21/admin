@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const THEMES = {
   light: {
     id: "light",
@@ -83,6 +84,7 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAdminTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {

@@ -11,7 +11,6 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Paper,
   Chip,
   IconButton,
   Tooltip,
@@ -32,7 +31,6 @@ import {
   Phone,
   RefreshCw,
   X,
-  User,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";

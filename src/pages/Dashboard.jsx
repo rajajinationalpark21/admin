@@ -9,14 +9,11 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   CircularProgress,
   Button,
-  IconButton,
   Menu,
-  MenuItem,
-  useTheme
+  MenuItem
 } from "@mui/material";
 import {
   FileText,
@@ -26,12 +23,7 @@ import {
   ArrowUpRight,
   ChevronDown,
   Calendar,
-  ExternalLink,
-  ShieldCheck,
-  Star,
-  CheckCircle2,
-  Clock,
-  Sparkles
+  Star
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../api/apiClient";
@@ -95,7 +87,6 @@ const KpiCard = ({ icon: Icon, title, value, iconBg, iconColor, linkTo }) => {
 };
 
 export default function Dashboard() {
-  const theme = useTheme();
   const [stats, setStats] = useState({
     blogs: 0,
     gallery: 0,

@@ -1,4 +1,3 @@
-import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
 import {
@@ -6,11 +5,8 @@ import {
   Layers,
   FileText,
   Image as ImageIcon,
-  MessageSquare,
-  MessageSquareQuote,
   Settings,
   LogOut,
-  CalendarCheck,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -19,13 +15,6 @@ const NAV_ITEMS = [
   { label: "Blog", icon: FileText, path: "/blog" },
   { label: "Gallery", icon: ImageIcon, path: "/gallery" },
   { label: "More", icon: Settings, path: "/settings" },
-];
-
-const MORE_ITEMS = [
-  { label: "Inquiries", icon: MessageSquare, path: "/inquiries" },
-  { label: "Reviews", icon: MessageSquareQuote, path: "/feedback" },
-  { label: "Bookings", icon: CalendarCheck, path: "/bookings" },
-  { label: "Settings", icon: Settings, path: "/settings" },
 ];
 
 export default function BottomNav() {

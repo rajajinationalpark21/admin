@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Header from "../components/common/Header";
-import { Save, Key, User, Shield, Trash2, PlusCircle, Users, Loader2 } from "lucide-react";
+import { Save, Key, User, Trash2, PlusCircle, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
 import { ADMIN_USERS_GET, ADMIN_USER_CREATE, ADMIN_USER_DELETE } from "../constants/endpoints";

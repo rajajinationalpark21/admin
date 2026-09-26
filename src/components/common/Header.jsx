@@ -1,6 +1,5 @@
-import React from "react";
-import { Box, Typography, Button, IconButton, Tooltip } from "@mui/material";
-import { Search, ExternalLink, ShieldCheck } from "lucide-react";
+import { Box, Typography, Button } from "@mui/material";
+import { ExternalLink } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import { useLocation } from "react-router-dom";
 

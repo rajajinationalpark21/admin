@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "react-toastify";
 import api from "../../api/apiClient";
 
@@ -6,6 +6,7 @@ export default function useSectionContent(sectionKey, defaults = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const defaultsRef = useRef(defaults);
 
   useEffect(() => {
     let cancelled = false;
@@ -13,9 +14,9 @@ export default function useSectionContent(sectionKey, defaults = {}) {
       try {
         const res = await api.get("content/get");
         const all = res.data?.data || res.data || {};
-        if (!cancelled) setData(all[sectionKey] || defaults);
+        if (!cancelled) setData(all[sectionKey] || defaultsRef.current);
       } catch {
-        if (!cancelled) setData(defaults);
+        if (!cancelled) setData(defaultsRef.current);
       } finally {
         if (!cancelled) setLoading(false);
       }

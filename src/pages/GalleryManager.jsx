@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import Header from "../components/common/Header";
-import { Upload, Trash2, X, Image as ImageIcon, Check, AlertCircle, Plus } from "lucide-react";
+import { Upload, Trash2, X, Image as ImageIcon, Check, Plus } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
 import { useNavigate } from "react-router-dom";

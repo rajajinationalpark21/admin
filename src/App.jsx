@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { ThemeProvider as MuiThemeProvider, CssBaseline } from "@mui/material";
 import { getMuiTheme } from "./theme/muiTheme";
@@ -6,7 +6,6 @@ import { ThemeProvider as AdminThemeProvider, useAdminTheme } from "./context/Th
 import Sidebar from "./components/common/Sidebar";
 import BottomNav, { MobileTopBar } from "./components/common/BottomNav";
 import Dashboard from "./pages/Dashboard";
-import ContentManager from "./pages/ContentManager";
 import BlogManager from "./pages/BlogManager";
 import GalleryManager from "./pages/GalleryManager";
 import InquiryManager from "./pages/InquiryManager";
@@ -14,6 +13,17 @@ import FeedbackManager from "./pages/FeedbackManager";
 import BookingManager from "./pages/BookingManager";
 import Settings from "./pages/Settings";
 import LoginPage from "./pages/Login-Page";
+
+// Dedicated Website Page Editors (Navbar System)
+import HomePageEditor from "./pages/pageEditors/HomePageEditor";
+import SafariZonesEditor from "./pages/pageEditors/SafariZonesEditor";
+import TicketsEditor from "./pages/pageEditors/TicketsEditor";
+import TermsRulesEditor from "./pages/pageEditors/TermsRulesEditor";
+import ActivitiesEditor from "./pages/pageEditors/ActivitiesEditor";
+import WildlifeEditor from "./pages/pageEditors/WildlifeEditor";
+import StayEditor from "./pages/pageEditors/StayEditor";
+import FaqsEditor from "./pages/pageEditors/FaqsEditor";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -49,7 +59,19 @@ function AdminShell() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/content" element={<ProtectedRoute><ContentManager /></ProtectedRoute>} />
+
+            {/* Dedicated Website Page Editors */}
+            <Route path="/pages/home" element={<ProtectedRoute><HomePageEditor /></ProtectedRoute>} />
+            <Route path="/pages/zones" element={<ProtectedRoute><SafariZonesEditor /></ProtectedRoute>} />
+            <Route path="/pages/tickets" element={<ProtectedRoute><TicketsEditor /></ProtectedRoute>} />
+            <Route path="/pages/terms" element={<ProtectedRoute><TermsRulesEditor /></ProtectedRoute>} />
+            <Route path="/pages/activities" element={<ProtectedRoute><ActivitiesEditor /></ProtectedRoute>} />
+            <Route path="/pages/wildlife" element={<ProtectedRoute><WildlifeEditor /></ProtectedRoute>} />
+            <Route path="/pages/stay" element={<ProtectedRoute><StayEditor /></ProtectedRoute>} />
+            <Route path="/pages/faqs" element={<ProtectedRoute><FaqsEditor /></ProtectedRoute>} />
+
+            {/* Operations & Management */}
+            <Route path="/content" element={<ProtectedRoute><HomePageEditor /></ProtectedRoute>} />
             <Route path="/blog" element={<ProtectedRoute><BlogManager /></ProtectedRoute>} />
             <Route path="/gallery" element={<ProtectedRoute><GalleryManager /></ProtectedRoute>} />
             <Route path="/inquiries" element={<ProtectedRoute><InquiryManager /></ProtectedRoute>} />

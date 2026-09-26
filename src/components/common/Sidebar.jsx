@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Box,
   Typography,
@@ -21,15 +21,20 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Menu,
-  X,
-  Compass,
-  Layers,
-  CalendarCheck
+  CalendarCheck,
+  Home,
+  Navigation,
+  Ticket,
+  ShieldCheck,
+  Trees,
+  Building2,
+  HelpCircle,
+  Waves
 } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 
 const COLLAPSED_WIDTH = 62;
-const EXPANDED_WIDTH = 216;
+const EXPANDED_WIDTH = 224;
 
 const NAV_SECTIONS = [
   {
@@ -39,25 +44,32 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    group: "CONTENT & PARK",
+    group: "WEBSITE PAGES",
     items: [
-      { label: "Park Content", icon: Layers, path: "/content" },
-      { label: "Wilderness Blog", icon: FileText, path: "/blog" },
-      { label: "Photo Gallery", icon: ImageIcon, path: "/gallery" },
+      { label: "1. Home (About)", icon: Home, path: "/pages/home" },
+      { label: "2. Safari Zones", icon: Navigation, path: "/pages/zones" },
+      { label: "3. Tickets & Tariffs", icon: Ticket, path: "/pages/tickets" },
+      { label: "4. Terms & Rules", icon: ShieldCheck, path: "/pages/terms" },
+      { label: "5. Activities & Rafting", icon: Waves, path: "/pages/activities" },
+      { label: "6. Wildlife & Nature", icon: Trees, path: "/pages/wildlife" },
+      { label: "7. Stay in Rajaji", icon: Building2, path: "/pages/stay" },
+      { label: "8. FAQ Page", icon: HelpCircle, path: "/pages/faqs" },
     ],
   },
   {
-    group: "VISITOR SERVICES",
+    group: "OPERATIONS & INBOX",
     items: [
+      { label: "Safari Bookings", icon: CalendarCheck, path: "/bookings", badge: "Live" },
       { label: "Contact Inquiries", icon: MessageSquare, path: "/inquiries", badge: "Inbox" },
-      { label: "Visitor Feedback", icon: MessageSquareQuote, path: "/feedback", badge: "Live" },
-      { label: "Safari Bookings", icon: CalendarCheck, path: "/bookings" },
+      { label: "Wilderness Blog", icon: FileText, path: "/blog" },
+      { label: "Photo Gallery", icon: ImageIcon, path: "/gallery" },
+      { label: "Visitor Reviews", icon: MessageSquareQuote, path: "/feedback" },
     ],
   },
   {
     group: "SYSTEM",
     items: [
-      { label: "Settings", icon: Settings, path: "/settings" },
+      { label: "Settings & Contacts", icon: Settings, path: "/settings" },
     ],
   },
 ];
@@ -158,7 +170,9 @@ export default function Sidebar() {
     setCollapsed(next);
     try {
       localStorage.setItem("safari_sidebar_collapsed", JSON.stringify(next));
-    } catch {}
+    } catch {
+      // Storage unavailable or disabled
+    }
   };
 
   const handleLogout = () => {
@@ -294,7 +308,7 @@ export default function Sidebar() {
             scrollbarWidth: "none",
           }}
         >
-          {NAV_SECTIONS.map((section, idx) => (
+          {NAV_SECTIONS.map((section) => (
             <Box key={section.group} sx={{ mb: 1.35 }}>
               {!isCollapsed && (
                 <Typography

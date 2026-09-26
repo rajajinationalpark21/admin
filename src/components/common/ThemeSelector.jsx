@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Sun, Moon, Trees, ChevronDown, Check } from "lucide-react";
 import { useAdminTheme } from "../../context/ThemeContext";
 

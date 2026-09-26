@@ -1,6 +1,5 @@
-import React from "react";
 import { Box } from "@mui/material";
-import { SectionShell, Field, FieldGrid } from "./SectionShell";
+import { SectionShell, Field } from "./SectionShell";
 import useSectionContent from "./useSectionContent";
 
 export default function EcoTourismTab() {

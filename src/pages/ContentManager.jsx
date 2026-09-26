@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "../components/common/Header";
-import { Save, Upload, Plus, Trash2, Layers, Info, Compass, CheckCircle2, Image as ImageIcon, FileText } from "lucide-react";
+import { Save, Upload, Layers, Info, Compass, CheckCircle2, Image as ImageIcon, FileText } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
 import {
@@ -10,11 +10,9 @@ import {
   TextField,
   Paper,
   CircularProgress,
-  IconButton,
   Divider,
   useTheme,
   Checkbox,
-  FormGroup,
   FormControlLabel
 } from "@mui/material";
 
