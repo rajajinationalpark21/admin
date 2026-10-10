@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Box, Typography, Button, TextField, CircularProgress, IconButton } from "@mui/material";
-import { Upload, X, Image as ImageIcon } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../../api/apiClient";
 
@@ -22,7 +22,8 @@ export default function ImageUploadField({ label, value, onChange, helperText, p
       const formData = new FormData();
       formData.append("image", file);
 
-      const res = await api.post("upload/image", formData);
+      // Backend route is mounted at /uploads/image
+      const res = await api.post("uploads/image", formData);
       const url = res.data?.image?.url || res.data?.url;
       if (url) {
         onChange(url);
