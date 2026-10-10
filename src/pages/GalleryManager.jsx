@@ -21,7 +21,20 @@ import {
   useTheme
 } from "@mui/material";
 
-const CATEGORIES = ["Wildlife", "Nature", "Vehicles", "Visitors"];
+const CATEGORIES = [
+  "Safari Zones",
+  "Birds",
+  "Butterflies",
+  "Flora",
+  "Mammals",
+  "Reptiles",
+  "Tickets & Entry",
+  "Landscapes",
+  "Wildlife",
+  "Nature",
+  "Vehicles",
+  "Visitors",
+];
 
 function getThumbnailUrl(url) {
   if (!url || typeof url !== "string") return url;
@@ -74,10 +87,11 @@ export default function GalleryManager() {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    // Validate size (5MB max)
-    const oversized = files.filter(f => f.size > 5 * 1024 * 1024);
+    // The API converts and downsizes originals before storing them. Keep the
+    // browser guard aligned with its 50 MB default request limit.
+    const oversized = files.filter(f => f.size > 50 * 1024 * 1024);
     if (oversized.length > 0) {
-      toast.error(`"${oversized[0].name}" exceeds 5MB limit. Please select smaller files.`);
+      toast.error(`"${oversized[0].name}" exceeds the 50MB upload limit.`);
       return;
     }
 
@@ -460,7 +474,7 @@ export default function GalleryManager() {
                 {selectedFiles.length > 0 ? `${selectedFiles.length} file(s) selected` : "Click to select photo(s)"}
               </Typography>
               <Typography sx={{ fontSize: "0.75rem", color: "text.secondary", mt: 0.5 }}>
-                Supports JPEG, PNG, WebP up to 5MB
+                Supports JPEG, PNG, WebP, GIF and AVIF up to 50MB. Images are optimized automatically.
               </Typography>
             </Box>
 

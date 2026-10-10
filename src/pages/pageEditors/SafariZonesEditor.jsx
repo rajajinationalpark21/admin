@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function SafariZonesEditor() {
@@ -59,6 +60,7 @@ export default function SafariZonesEditor() {
       landscape: "Shivalik hills, Sal forests, and stream beds.",
       highlights: ["Watchtower viewpoint", "Riverbed birding"],
       wildlife: ["Asian Elephant", "Spotted Deer", "Peafowl"],
+      heroImage: "",
       seoTitle: "Safari Range | Rajaji National Park",
       metaDescription: "Book jeep safari in Rajaji Tiger Reserve.",
     };
@@ -199,6 +201,17 @@ export default function SafariZonesEditor() {
                 label="Tagline / Badge"
                 value={currentZone.tag || ""}
                 onChange={e => updateCurrentZone("tag", e.target.value)}
+              />
+            </Box>
+
+            {/* Zone Hero Image */}
+            <Box>
+              <ImageUploadField
+                label="Zone Hero Banner Image"
+                value={currentZone.heroImage || ""}
+                onChange={val => updateCurrentZone("heroImage", val)}
+                placeholder="https://res.cloudinary.com/..."
+                helperText="Upload local zone photo or paste Cloudinary URL"
               />
             </Box>
 

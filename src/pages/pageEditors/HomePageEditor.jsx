@@ -1,6 +1,7 @@
 import { Box, Typography, Button, Paper, TextField, CircularProgress } from "@mui/material";
 import { Save, Layers, Sparkles } from "lucide-react";
 import Header from "../../components/common/Header";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function HomePageEditor() {
@@ -80,14 +81,12 @@ export default function HomePageEditor() {
           </Box>
 
           <Box sx={{ mt: 2.5 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Hero Banner Image URL"
+            <ImageUploadField
+              label="Hero Banner Image"
               value={data.heroBanner || ""}
-              onChange={e => setField("heroBanner", e.target.value)}
-              placeholder="https://images.unsplash.com/..."
-              helperText="Paste direct image URL or Cloudinary asset link"
+              onChange={val => setField("heroBanner", val)}
+              placeholder="https://res.cloudinary.com/..."
+              helperText="Upload local photo (auto-compressed to WebP & normalized) or paste Cloudinary URL"
             />
           </Box>
         </Paper>
