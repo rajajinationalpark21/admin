@@ -114,11 +114,11 @@ const BlogManager = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
     try {
-      await api.delete(`blogs/delete/${id}`);
+      await api.delete("blogs/delete", { data: { blogId: id, id } });
       toast.success("Blog deleted successfully!");
       fetchBlogs();
     } catch (error) {
-      toast.error("Failed to delete blog");
+      toast.error(error.response?.data?.message || "Failed to delete blog");
       console.error(error);
     }
   };

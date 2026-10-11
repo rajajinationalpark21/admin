@@ -6,8 +6,8 @@ import api from "../api/apiClient";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("admin@junglesafari.com");
-  const [password, setPassword] = useState("ChangeMe123!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
