@@ -154,14 +154,33 @@ export default function GalleryManager() {
   const handleBulkDelete = async () => {
     if (!window.confirm(`Delete ${selectedImages.length} selected photos permanently?`)) return;
     try {
-      for (const id of selectedImages) {
-        await api.delete("gallery/delete", { data: { imageId: id } });
-      }
+      await api.delete("gallery/delete", { data: { imageIds: selectedImages } });
       toast.success("Selected photos deleted successfully!");
       setSelectedImages([]);
       fetchImages();
     } catch (error) {
-      toast.error("Failed to delete some photos");
+      toast.error(error.response?.data?.message || "Failed to delete photos");
+      console.error(error);
+    }
+  };
+
+  const handleToggleSelectAll = () => {
+    if (selectedImages.length === images.length) {
+      setSelectedImages([]);
+    } else {
+      setSelectedImages(images.map((img) => img._id || img.id));
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!window.confirm(`WARNING: Are you sure you want to completely clear ALL ${images.length} photos from the gallery? This will permanently delete them from the database.`)) return;
+    try {
+      await api.delete("gallery/clear-all");
+      toast.success("All gallery photos cleared from database!");
+      setSelectedImages([]);
+      fetchImages();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to clear gallery");
       console.error(error);
     }
   };
@@ -217,7 +236,7 @@ export default function GalleryManager() {
             gap: 2,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
             <Button
               variant="contained"
               onClick={() => setIsUploadOpen(true)}
@@ -237,6 +256,21 @@ export default function GalleryManager() {
               Upload Photo
             </Button>
 
+            {images.length > 0 && (
+              <Button
+                variant="outlined"
+                onClick={handleToggleSelectAll}
+                sx={{
+                  borderRadius: "12px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  textTransform: "none",
+                }}
+              >
+                {selectedImages.length === images.length ? "Deselect All" : "Select All"}
+              </Button>
+            )}
+
             {selectedImages.length > 0 && (
               <Button
                 variant="outlined"
@@ -251,6 +285,23 @@ export default function GalleryManager() {
                 }}
               >
                 Delete Selected ({selectedImages.length})
+              </Button>
+            )}
+
+            {images.length > 0 && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleClearAll}
+                startIcon={<Trash2 size={15} />}
+                sx={{
+                  borderRadius: "12px",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  textTransform: "none",
+                }}
+              >
+                Clear Entire Gallery
               </Button>
             )}
           </Box>
