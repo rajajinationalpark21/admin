@@ -15,7 +15,9 @@ export default function HomePageEditor() {
     rules: "",
     aboutTitle: "",
     aboutDescription: "",
-    stats: { tigers: "50+", sqKm: "820+", acres: "120k" },
+    aboutImage: "",
+    aboutBadge: "EST. 1983",
+    stats: { tigers: "50+", sqKm: "820+", acres: "820+", forestArea: "820+" },
   });
 
   if (loading) {
@@ -148,6 +150,28 @@ export default function HomePageEditor() {
           </Box>
 
           <Box sx={{ mb: 2.5 }}>
+            <ImageUploadField
+              label="About Section Image (Wildlife / Tiger Photo)"
+              value={data.aboutImage || ""}
+              onChange={val => setField("aboutImage", val)}
+              placeholder="https://res.cloudinary.com/..."
+              helperText="Upload local photo or paste Cloudinary image URL for the About section frame"
+            />
+          </Box>
+
+          <Box sx={{ mb: 2.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Established Badge / Tag (e.g. EST. 1983)"
+              value={data.aboutBadge || ""}
+              onChange={e => setField("aboutBadge", e.target.value)}
+              placeholder="EST. 1983"
+              helperText="Floating badge displayed on the corner of the About section image"
+            />
+          </Box>
+
+          <Box sx={{ mb: 2.5 }}>
             <TextField
               fullWidth
               multiline
@@ -173,9 +197,15 @@ export default function HomePageEditor() {
               fullWidth
               size="small"
               label="Forest Area (Sq Km) Stat"
-              value={data.stats?.sqKm || ""}
-              onChange={e => setStat("sqKm", e.target.value)}
+              value={data.stats?.sqKm || data.stats?.forestArea || data.stats?.acres || ""}
+              onChange={e => {
+                const val = e.target.value;
+                setStat("sqKm", val);
+                setStat("acres", val);
+                setStat("forestArea", val);
+              }}
               placeholder="820+"
+              helperText="Count displayed under the About section (e.g. 820+)"
             />
           </Box>
         </Paper>
