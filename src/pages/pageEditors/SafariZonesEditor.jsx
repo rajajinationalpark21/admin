@@ -19,6 +19,9 @@ import useSectionContent from "../../components/content/useSectionContent";
 
 export default function SafariZonesEditor() {
   const { data, setData, loading, saving, save } = useSectionContent("safari", {
+    title: "",
+    subtitle: "",
+    heroBanner: "",
     zones: [],
     vehicles: [],
   });
@@ -114,6 +117,41 @@ export default function SafariZonesEditor() {
 
       <Box sx={{ maxWidth: "1150px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3 }}>
         
+        {/* Safari Zones Page Header & Banner Image */}
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <Typography sx={{ fontSize: "1.05rem", fontWeight: 700, mb: 1 }}>Safari Zones Main Page Header</Typography>
+          <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mb: 2.5 }}>
+            Header title, description, and hero banner photo displayed at the top of the /zones page.
+          </Typography>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 2.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Header Main Title"
+              value={data.title || ""}
+              onChange={e => setData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Safari Zones of Rajaji National Park"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Header Subtitle Narrative"
+              value={data.subtitle || ""}
+              onChange={e => setData(prev => ({ ...prev, subtitle: e.target.value }))}
+              placeholder="Explore 7 distinct safari ranges and historical reserves..."
+            />
+          </Box>
+
+          <ImageUploadField
+            label="Zones Page Header Banner Image"
+            value={data.heroBanner || ""}
+            onChange={val => setData(prev => ({ ...prev, heroBanner: val }))}
+            placeholder="https://res.cloudinary.com/..."
+            helperText="Upload local photo (auto-compressed to WebP) or paste Cloudinary URL for the /zones header banner"
+          />
+        </Paper>
+
         {/* Top Zone Selection Tabs */}
         <Paper elevation={0} sx={{ p: 2, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
