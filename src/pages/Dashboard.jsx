@@ -17,7 +17,6 @@ import {
 } from "@mui/material";
 import {
   FileText,
-  Image as ImageIcon,
   MessageSquare,
   MessageSquareQuote,
   ArrowUpRight,
@@ -89,7 +88,6 @@ const KpiCard = ({ icon: Icon, title, value, iconBg, iconColor, linkTo }) => {
 export default function Dashboard() {
   const [stats, setStats] = useState({
     blogs: 0,
-    gallery: 0,
     inquiries: 0,
     feedbacks: 0,
   });
@@ -104,21 +102,18 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [blogRes, galleryRes, inquiryRes, feedbackRes] = await Promise.allSettled([
+        const [blogRes, inquiryRes, feedbackRes] = await Promise.allSettled([
           api.get("blogs/get"),
-          api.get("gallery/get"),
           api.get("contact/get"),
-          api.get("feedback/get"),
+          api.get("feedback/admin/all"),
         ]);
 
         const blogs = blogRes.status === "fulfilled" ? (blogRes.value.data?.blogs || blogRes.value.data?.data || []) : [];
-        const gallery = galleryRes.status === "fulfilled" ? (galleryRes.value.data?.images || galleryRes.value.data?.data || []) : [];
         const inquiries = inquiryRes.status === "fulfilled" ? (inquiryRes.value.data?.inquiries || inquiryRes.value.data?.data || []) : [];
         const feedbacks = feedbackRes.status === "fulfilled" ? (feedbackRes.value.data?.feedbacks || feedbackRes.value.data?.data || []) : [];
 
         setStats({
           blogs: Array.isArray(blogs) ? blogs.length : 0,
-          gallery: Array.isArray(gallery) ? gallery.length : 0,
           inquiries: Array.isArray(inquiries) ? inquiries.length : 0,
           feedbacks: Array.isArray(feedbacks) ? feedbacks.length : 0,
         });
@@ -222,7 +217,7 @@ export default function Dashboard() {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(4, 1fr)" },
+            gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", lg: "repeat(3, 1fr)" },
             gap: 2,
             mb: 3.5,
           }}
@@ -250,14 +245,6 @@ export default function Dashboard() {
             iconBg="rgba(249, 115, 22, 0.12)"
             iconColor="#F97316"
             linkTo="/blog"
-          />
-          <KpiCard
-            icon={ImageIcon}
-            title="Gallery Captures"
-            value={loading ? "..." : stats.gallery}
-            iconBg="rgba(139, 92, 246, 0.12)"
-            iconColor="#8B5CF6"
-            linkTo="/gallery"
           />
         </Box>
 

@@ -1,5 +1,5 @@
 import { Box, Typography, Button, Paper, TextField, CircularProgress } from "@mui/material";
-import { Save, Layers, Sparkles } from "lucide-react";
+import { Save, Layers, Sparkles, Camera } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
@@ -18,6 +18,9 @@ export default function HomePageEditor() {
     aboutImage: "",
     aboutBadge: "EST. 1983",
     stats: { tigers: "50+", sqKm: "820+", acres: "820+", forestArea: "820+" },
+    galleryTitle: "Captured Moments",
+    gallerySubtitle: "Glimpses of the wild, caught in the perfect light.",
+    galleryImages: [],
   });
 
   if (loading) {
@@ -30,12 +33,20 @@ export default function HomePageEditor() {
 
   const setField = (key, val) => setData(prev => ({ ...prev, [key]: val }));
   const setStat = (key, val) => setData(prev => ({ ...prev, stats: { ...(prev.stats || {}), [key]: val } }));
+  // The last field is always an empty "add" slot; clearing a photo removes it.
+  const galleryImages = (data.galleryImages || []).filter(Boolean);
+  const setGalleryImage = (index, val) => {
+    const images = [...galleryImages];
+    if (val) images[index] = val;
+    else images.splice(index, 1);
+    setField("galleryImages", images);
+  };
 
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
         title="Page 1: Home & About Rajaji"
-        subtitle="Manage hero banner, tagline, timings, sanctuary legacy, and homepage statistics"
+        subtitle="Manage hero banner, tagline, timings, sanctuary legacy, statistics, and Captured Moments photos"
       />
 
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3.5 }}>
@@ -154,8 +165,8 @@ export default function HomePageEditor() {
               label="About Section Image (Wildlife / Tiger Photo)"
               value={data.aboutImage || ""}
               onChange={val => setField("aboutImage", val)}
-              placeholder="https://res.cloudinary.com/..."
-              helperText="Upload local photo or paste Cloudinary image URL for the About section frame"
+              allowUrl={false}
+              helperText="Upload a local photo for the About section frame"
             />
           </Box>
 
@@ -207,6 +218,48 @@ export default function HomePageEditor() {
               placeholder="820+"
               helperText="Count displayed under the About section (e.g. 820+)"
             />
+          </Box>
+        </Paper>
+
+        {/* Captured Moments (homepage photo mosaic) */}
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+            <Camera size={18} className="text-emerald-600" />
+            <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>Captured Moments</Typography>
+          </Box>
+          <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mb: 2.5 }}>
+            The photo frame on the homepage. Upload as many photos as you like; the frame rearranges itself to fit them. Remove a photo with its ✕ button.
+          </Typography>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 2.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Section Heading"
+              value={data.galleryTitle || ""}
+              onChange={e => setField("galleryTitle", e.target.value)}
+              placeholder="Captured Moments"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Section Subtitle"
+              value={data.gallerySubtitle || ""}
+              onChange={e => setField("gallerySubtitle", e.target.value)}
+              placeholder="Glimpses of the wild, caught in the perfect light."
+            />
+          </Box>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+            {[...galleryImages, ""].map((image, index) => (
+              <ImageUploadField
+                key={image || "add-photo"}
+                label={image ? `Photo ${index + 1}` : "Add a photo"}
+                value={image}
+                onChange={val => setGalleryImage(index, val)}
+                allowUrl={false}
+              />
+            ))}
           </Box>
         </Paper>
 

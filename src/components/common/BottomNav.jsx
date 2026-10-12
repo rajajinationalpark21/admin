@@ -4,7 +4,6 @@ import {
   LayoutDashboard,
   Layers,
   FileText,
-  Image as ImageIcon,
   Settings,
   LogOut,
 } from "lucide-react";
@@ -13,7 +12,6 @@ const NAV_ITEMS = [
   { label: "Home", icon: LayoutDashboard, path: "/dashboard" },
   { label: "Content", icon: Layers, path: "/content" },
   { label: "Blog", icon: FileText, path: "/blog" },
-  { label: "Gallery", icon: ImageIcon, path: "/gallery" },
   { label: "More", icon: Settings, path: "/settings" },
 ];
 

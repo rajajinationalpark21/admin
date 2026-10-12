@@ -13,7 +13,6 @@ import {
 import {
   LayoutDashboard,
   FileText,
-  Image as ImageIcon,
   MessageSquare,
   MessageSquareQuote,
   Settings,
@@ -62,7 +61,6 @@ const NAV_SECTIONS = [
       { label: "Safari Bookings", icon: CalendarCheck, path: "/bookings", badge: "Live" },
       { label: "Contact Inquiries", icon: MessageSquare, path: "/inquiries", badge: "Inbox" },
       { label: "Wilderness Blog", icon: FileText, path: "/blog" },
-      { label: "Photo Gallery", icon: ImageIcon, path: "/gallery" },
       { label: "Visitor Reviews", icon: MessageSquareQuote, path: "/feedback" },
     ],
   },

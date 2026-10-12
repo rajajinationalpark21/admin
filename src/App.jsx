@@ -7,7 +7,6 @@ import Sidebar from "./components/common/Sidebar";
 import BottomNav, { MobileTopBar } from "./components/common/BottomNav";
 import Dashboard from "./pages/Dashboard";
 import BlogManager from "./pages/BlogManager";
-import GalleryManager from "./pages/GalleryManager";
 import InquiryManager from "./pages/InquiryManager";
 import FeedbackManager from "./pages/FeedbackManager";
 import BookingManager from "./pages/BookingManager";
@@ -73,7 +72,6 @@ function AdminShell() {
             {/* Operations & Management */}
             <Route path="/content" element={<ProtectedRoute><HomePageEditor /></ProtectedRoute>} />
             <Route path="/blog" element={<ProtectedRoute><BlogManager /></ProtectedRoute>} />
-            <Route path="/gallery" element={<ProtectedRoute><GalleryManager /></ProtectedRoute>} />
             <Route path="/inquiries" element={<ProtectedRoute><InquiryManager /></ProtectedRoute>} />
             <Route path="/feedback" element={<ProtectedRoute><FeedbackManager /></ProtectedRoute>} />
             <Route path="/bookings" element={<ProtectedRoute><BookingManager /></ProtectedRoute>} />
