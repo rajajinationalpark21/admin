@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import Header from "../components/common/Header";
-import { Save, Key, User, Trash2, PlusCircle, Users } from "lucide-react";
+import { Save, Key, User, Trash2, PlusCircle, Users, Globe } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
+import SettingsTab from "../components/content/SettingsTab";
 import { ADMIN_USERS_GET, ADMIN_USER_CREATE, ADMIN_USER_DELETE } from "../constants/endpoints";
 import {
   Box,
@@ -145,6 +146,7 @@ export default function Settings() {
 
   const tabs = [
     { id: "users", label: "Manage Users", icon: Users },
+    { id: "website", label: "Website Details", icon: Globe },
     { id: "profile", label: "Admin Profile", icon: User },
     { id: "password", label: "Security & Password", icon: Key },
   ];
@@ -153,7 +155,7 @@ export default function Settings() {
 
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
-      <Header title="System Settings" subtitle="Manage admin users, profile credentials, and portal security" />
+      <Header title="System Settings" subtitle="Manage admin users, website contact details, profile credentials, and portal security" />
 
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3 }}>
         {/* Tabs */}
@@ -482,6 +484,9 @@ export default function Settings() {
               </Dialog>
             </Box>
           )}
+
+          {/* ===== WEBSITE TAB ===== */}
+          {activeTab === "website" && <SettingsTab />}
 
           {/* ===== PROFILE TAB ===== */}
           {activeTab === "profile" && (

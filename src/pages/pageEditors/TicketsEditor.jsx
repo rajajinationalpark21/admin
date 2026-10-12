@@ -9,10 +9,14 @@ import {
 } from "@mui/material";
 import { Save, Plus, Trash2, Clock, DollarSign, Ticket } from "lucide-react";
 import Header from "../../components/common/Header";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function TicketsEditor() {
   const { data, setData, loading, saving, save } = useSectionContent("tickets", {
+    title: "",
+    subtitle: "",
+    heroBanner: "",
     timings: { summer: "", winter: "", openDates: "" },
     entranceFees: [],
     gypsyRates: [],
@@ -93,6 +97,41 @@ export default function TicketsEditor() {
 
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3.5 }}>
         
+        {/* Tickets Page Header & Banner Image */}
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <Typography sx={{ fontSize: "1.05rem", fontWeight: 700, mb: 1 }}>Tickets & Charges Page Header</Typography>
+          <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mb: 2.5 }}>
+            Header title, subtitle, and hero banner photo displayed at the top of the /tickets page.
+          </Typography>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 2.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Header Main Title"
+              value={data.title || ""}
+              onChange={e => setField("title", e.target.value)}
+              placeholder="Rajaji National Park Jeep Safari – Tickets, Entry Fees & Charges"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Header Subtitle Narrative"
+              value={data.subtitle || ""}
+              onChange={e => setField("subtitle", e.target.value)}
+              placeholder="Transparent, government-standard park entry fees, 4x4 Gypsy tariffs..."
+            />
+          </Box>
+
+          <ImageUploadField
+            label="Tickets Page Header Banner Image"
+            value={data.heroBanner || ""}
+            onChange={val => setField("heroBanner", val)}
+            placeholder="https://res.cloudinary.com/..."
+            helperText="Upload local photo (auto-compressed to WebP) or paste Cloudinary URL for the /tickets header banner"
+          />
+        </Paper>
+
         {/* Safari Shift Timings */}
         <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>

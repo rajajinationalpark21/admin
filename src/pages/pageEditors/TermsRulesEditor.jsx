@@ -12,10 +12,14 @@ import {
 } from "@mui/material";
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function TermsRulesEditor() {
   const { data: rulesData, setData: setRulesData, loading: rulesLoading, saving: rulesSaving, save: saveRules } = useSectionContent("parkRules", {
+    title: "",
+    subtitle: "",
+    heroBanner: "",
     overview: "",
     dos: [],
     donts: [],
@@ -117,6 +121,61 @@ export default function TermsRulesEditor() {
 
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3.5 }}>
         
+        {/* Page Header & Hero Banner Section */}
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>Terms & Rules Page Header</Typography>
+            <Button
+              variant="contained"
+              size="small"
+              disabled={isSaving}
+              onClick={handleSaveAll}
+              startIcon={isSaving ? <CircularProgress size={14} /> : <Save size={14} />}
+              sx={{
+                borderRadius: "8px",
+                backgroundColor: "text.primary",
+                color: "background.paper",
+                fontWeight: 600,
+                fontSize: "0.8rem",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "text.primary", opacity: 0.9 },
+              }}
+            >
+              {isSaving ? "Saving..." : "Save Header & Banner"}
+            </Button>
+          </Box>
+          <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mb: 2.5 }}>
+            Header title, subtitle narrative, and hero banner photo displayed at the top of the /terms page.
+          </Typography>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 2.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Header Main Title"
+              value={rulesData.title || ""}
+              onChange={e => setRulesData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Rajaji Jeep Safari Terms & Conditions"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Header Subtitle Narrative"
+              value={rulesData.subtitle || ""}
+              onChange={e => setRulesData(prev => ({ ...prev, subtitle: e.target.value }))}
+              placeholder="Cancellation, Refunds, Gate Arrival Timings & Forest Department Safari Regulations"
+            />
+          </Box>
+
+          <ImageUploadField
+            label="Terms & Rules Header Banner Image"
+            value={rulesData.heroBanner || ""}
+            onChange={val => setRulesData(prev => ({ ...prev, heroBanner: val }))}
+            placeholder="https://res.cloudinary.com/... or upload image"
+            helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /terms hero banner"
+          />
+        </Paper>
+
         {/* Navigation Tabs */}
         <Paper elevation={0} sx={{ p: 1, borderRadius: "14px", border: "1px solid", borderColor: "divider" }}>
           <Tabs

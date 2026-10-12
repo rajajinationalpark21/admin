@@ -14,7 +14,22 @@ export default function useSectionContent(sectionKey, defaults = {}) {
       try {
         const res = await api.get("content/get");
         const all = res.data?.data || res.data || {};
-        if (!cancelled) setData(all[sectionKey] || defaultsRef.current);
+        const sec = all[sectionKey];
+        if (sec && typeof sec === "object") {
+          const resolved = { ...defaultsRef.current, ...sec };
+          for (const k of Object.keys(defaultsRef.current)) {
+            if (
+              typeof defaultsRef.current[k] === "string" &&
+              defaultsRef.current[k] &&
+              (!sec[k] || String(sec[k]).trim() === "")
+            ) {
+              resolved[k] = defaultsRef.current[k];
+            }
+          }
+          if (!cancelled) setData(resolved);
+        } else {
+          if (!cancelled) setData(defaultsRef.current);
+        }
       } catch {
         if (!cancelled) setData(defaultsRef.current);
       } finally {

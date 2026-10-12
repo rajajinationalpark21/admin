@@ -9,10 +9,14 @@ import {
 } from "@mui/material";
 import { Save, Plus, Trash2, HelpCircle } from "lucide-react";
 import Header from "../../components/common/Header";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function FaqsEditor() {
   const { data, setData, loading, saving, save } = useSectionContent("faqs", {
+    title: "",
+    subtitle: "",
+    heroBanner: "",
     overview: "",
     items: [],
   });
@@ -54,6 +58,31 @@ export default function FaqsEditor() {
 
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3.5 }}>
         
+        {/* Page Header Card */}
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <Typography sx={{ fontSize: "1.05rem", fontWeight: 700, mb: 1.5 }}>Page Header</Typography>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, mb: 2 }}>
+            <TextField
+              size="small"
+              label="Header Title"
+              value={data.title || ""}
+              onChange={e => setField("title", e.target.value)}
+            />
+            <TextField
+              size="small"
+              label="Header Subtitle"
+              value={data.subtitle || ""}
+              onChange={e => setField("subtitle", e.target.value)}
+            />
+          </Box>
+          <ImageUploadField
+            label="Header Banner Image"
+            value={data.heroBanner || ""}
+            onChange={val => setField("heroBanner", val)}
+            helperText="Displayed at the top of the /faq page."
+          />
+        </Paper>
+
         {/* Header & Overview Card */}
         <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>

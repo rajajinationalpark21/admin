@@ -6,7 +6,6 @@ import {
   Paper, 
   TextField, 
   CircularProgress, 
-  Chip, 
   IconButton,
   Tabs,
   Tab,
@@ -62,7 +61,6 @@ export default function SafariZonesEditor() {
       description: "Description of the safari range and forest habitats...",
       landscape: "Shivalik hills, Sal forests, and stream beds.",
       highlights: ["Watchtower viewpoint", "Riverbed birding"],
-      wildlife: ["Asian Elephant", "Spotted Deer", "Peafowl"],
       heroImage: "",
       seoTitle: "Safari Range | Rajaji National Park",
       metaDescription: "Book jeep safari in Rajaji Tiger Reserve.",
@@ -97,17 +95,6 @@ export default function SafariZonesEditor() {
     updateCurrentZone("highlights", list);
   };
 
-  // Wildlife helpers
-  const addWildlifeTag = () => {
-    const list = currentZone.wildlife || [];
-    updateCurrentZone("wildlife", [...list, "Wildlife Species"]);
-  };
-
-  const removeWildlifeTag = (i) => {
-    const list = (currentZone.wildlife || []).filter((_, idx) => idx !== i);
-    updateCurrentZone("wildlife", list);
-  };
-
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
@@ -119,7 +106,27 @@ export default function SafariZonesEditor() {
         
         {/* Safari Zones Page Header & Banner Image */}
         <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
-          <Typography sx={{ fontSize: "1.05rem", fontWeight: 700, mb: 1 }}>Safari Zones Main Page Header</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>Safari Zones Main Page Header</Typography>
+            <Button
+              variant="contained"
+              size="small"
+              disabled={saving}
+              onClick={save}
+              startIcon={saving ? <CircularProgress size={14} /> : <Save size={14} />}
+              sx={{
+                borderRadius: "8px",
+                backgroundColor: "text.primary",
+                color: "background.paper",
+                fontWeight: 600,
+                fontSize: "0.8rem",
+                textTransform: "none",
+                "&:hover": { backgroundColor: "text.primary", opacity: 0.9 },
+              }}
+            >
+              {saving ? "Saving..." : "Save Header & Banner"}
+            </Button>
+          </Box>
           <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mb: 2.5 }}>
             Header title, description, and hero banner photo displayed at the top of the /zones page.
           </Typography>
@@ -139,7 +146,7 @@ export default function SafariZonesEditor() {
               label="Header Subtitle Narrative"
               value={data.subtitle || ""}
               onChange={e => setData(prev => ({ ...prev, subtitle: e.target.value }))}
-              placeholder="Explore 7 distinct safari ranges and historical reserves..."
+              placeholder="Explore the six jeep safari zones of Rajaji Tiger Reserve"
             />
           </Box>
 
@@ -348,24 +355,6 @@ export default function SafariZonesEditor() {
                       <Trash2 size={16} />
                     </IconButton>
                   </Box>
-                ))}
-              </Box>
-            </Box>
-
-            {/* Wildlife Tags */}
-            <Box>
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1.5 }}>
-                <Typography sx={{ fontSize: "0.9rem", fontWeight: 700 }}>Wildlife Commonly Sighted</Typography>
-                <Button size="small" onClick={addWildlifeTag} sx={{ fontSize: "0.75rem", textTransform: "none" }}>+ Add Animal</Button>
-              </Box>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {(currentZone.wildlife || []).map((w, i) => (
-                  <Chip
-                    key={i}
-                    label={w}
-                    onDelete={() => removeWildlifeTag(i)}
-                    sx={{ borderRadius: "8px" }}
-                  />
                 ))}
               </Box>
             </Box>

@@ -12,12 +12,14 @@ import {
 } from "@mui/material";
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
+import ImageUploadField from "../../components/common/ImageUploadField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function ActivitiesEditor() {
   const { data: actData, setData: setActData, loading: actLoading, saving: actSaving, save: saveAct } = useSectionContent("activities", {
     title: "",
     subtitle: "",
+    heroBanner: "",
     items: [],
   });
 
@@ -73,7 +75,7 @@ export default function ActivitiesEditor() {
     const list = raftData.stretches || [];
     setRaftData(prev => ({
       ...prev,
-      stretches: [...list, { name: "New River Run", distance: "16 km Stretch", duration: "Approx. 3 Hours", rapids: "Grade II & III", level: "Moderate", price: "₹1,000 per person", desc: "Stretch description..." }]
+      stretches: [...list, { name: "New River Run", distance: "16 km Stretch", duration: "Approx. 3 Hours", rapids: "Grade II & III", level: "Moderate", price: "₹1,000 per person", desc: "Stretch description...", image: "" }]
     }));
   };
 
@@ -123,12 +125,32 @@ export default function ActivitiesEditor() {
                   Jeep Safari, Bird Watching, Stay in Rajaji, and River Rafting.
                 </Typography>
               </Box>
-              <Button size="small" variant="outlined" onClick={addActivity} startIcon={<Plus size={14} />} sx={{ borderRadius: "8px", textTransform: "none", fontSize: "0.75rem" }}>
-                Add Activity
-              </Button>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button 
+                  size="small" 
+                  variant="contained" 
+                  disabled={isSaving} 
+                  onClick={handleSaveAll} 
+                  startIcon={isSaving ? <CircularProgress size={14} /> : <Save size={14} />} 
+                  sx={{ 
+                    borderRadius: "8px", 
+                    textTransform: "none", 
+                    fontSize: "0.75rem",
+                    fontWeight: 600,
+                    backgroundColor: "text.primary",
+                    color: "background.paper",
+                    "&:hover": { backgroundColor: "text.primary", opacity: 0.9 },
+                  }}
+                >
+                  {isSaving ? "Saving..." : "Save Page & Header"}
+                </Button>
+                <Button size="small" variant="outlined" onClick={addActivity} startIcon={<Plus size={14} />} sx={{ borderRadius: "8px", textTransform: "none", fontSize: "0.75rem" }}>
+                  Add Activity
+                </Button>
+              </Box>
             </Box>
 
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 3 }}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5, mb: 2.5 }}>
               <TextField
                 fullWidth
                 size="small"
@@ -142,6 +164,16 @@ export default function ActivitiesEditor() {
                 label="Page Subtitle"
                 value={actData.subtitle || ""}
                 onChange={e => setActData(prev => ({ ...prev, subtitle: e.target.value }))}
+              />
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <ImageUploadField
+                label="Activities Page Header Banner Image"
+                value={actData.heroBanner || ""}
+                onChange={val => setActData(prev => ({ ...prev, heroBanner: val }))}
+                placeholder="https://res.cloudinary.com/... or upload image"
+                helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /activities hero banner"
               />
             </Box>
 
@@ -192,13 +224,12 @@ export default function ActivitiesEditor() {
                     onChange={e => updateActivity(idx, "desc", e.target.value)}
                   />
 
-                  <TextField
-                    fullWidth
-                    size="small"
-                    label="Image URL"
+                  <ImageUploadField
+                    label="Activity Card Image"
                     value={item.image || ""}
-                    onChange={e => updateActivity(idx, "image", e.target.value)}
+                    onChange={(val) => updateActivity(idx, "image", val)}
                     placeholder="https://images.unsplash.com/..."
+                    helperText="Upload a photo for this activity card, or paste a direct image URL"
                   />
                 </Box>
               ))}
@@ -272,6 +303,14 @@ export default function ActivitiesEditor() {
                     label="Description & Rapids Info"
                     value={run.desc || ""}
                     onChange={e => updateStretch(idx, "desc", e.target.value)}
+                  />
+
+                  <ImageUploadField
+                    label="Stretch Photo"
+                    value={run.image || ""}
+                    onChange={(val) => updateStretch(idx, "image", val)}
+                    placeholder="https://res.cloudinary.com/... or paste URL"
+                    helperText="Upload a photo for this rafting stretch card, or paste a direct image URL"
                   />
                 </Box>
               ))}
