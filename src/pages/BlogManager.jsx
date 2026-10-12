@@ -81,10 +81,11 @@ const BlogManager = () => {
       if (formData.image) data.append("image", formData.image);
 
       if (editId) {
-        await api.put(`blogs/update/${editId}`, data);
+        data.append("blogId", editId);
+        await api.patch("blogs/update", data);
         toast.success("Blog updated successfully!");
       } else {
-        await api.post("blogs/create", data);
+        await api.post("blogs/add", data);
         toast.success("Blog created successfully!");
       }
 
