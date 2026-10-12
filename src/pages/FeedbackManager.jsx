@@ -22,6 +22,7 @@ import {
   InputAdornment,
   CircularProgress,
   Button,
+  Switch,
   useMediaQuery,
   useTheme as useMuiTheme,
 } from "@mui/material";
@@ -32,7 +33,6 @@ import {
   Search, 
   CheckCircle2, 
   RefreshCw, 
-  ShieldCheck, 
   ShieldAlert, 
   MapPin, 
   ChevronDown, 
@@ -53,11 +53,12 @@ import {
 const ZONES = [
   "All Zones",
   "Chilla Range",
-  "Motichur Range",
-  "Gohari Range",
-  "Ranipur Range",
-  "Jhilmil Jheel Sanctuary",
-  "General Sanctuary"
+  "Ranipur Gate (Haridwar Zone)",
+  "Chillawali / Mohand Gate",
+  "Motichur Zone",
+  "Jhilmil Jheel",
+  "Gohri Range",
+  "General Sanctuary Experience"
 ];
 
 const FeedbackManager = () => {
@@ -705,32 +706,90 @@ const FeedbackManager = () => {
                     {item.zone && (
                       <Chip label={item.zone} size="small" sx={{ height: 20, fontSize: "0.625rem", fontWeight: 600, backgroundColor: "action.hover", color: "text.secondary" }} />
                     )}
-                    <Box sx={{ display: "flex", gap: 0.5, ml: "auto" }}>
-                      <Chip
-                        onClick={() => handleToggleStatus(item)}
-                        disabled={isBusy}
-                        label={item.status === "approved" ? "Live" : "Pending"}
-                        size="small"
-                        clickable
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, ml: "auto" }}>
+                      {/* Verification Switch */}
+                      <Box
+                        onClick={() => !isBusy && handleToggleVerified(item)}
                         sx={{
-                          height: 22, fontSize: "0.625rem", fontWeight: 700,
-                          backgroundColor: item.status === "approved" ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)",
-                          color: item.status === "approved" ? "#34D399" : "#FBBF24",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          cursor: isBusy ? "not-allowed" : "pointer",
+                          px: 1,
+                          py: 0.25,
+                          borderRadius: "16px",
+                          backgroundColor: item.isVerified ? "rgba(16, 185, 129, 0.08)" : "rgba(100, 116, 139, 0.08)",
+                          border: "1px solid",
+                          borderColor: item.isVerified ? "rgba(16, 185, 129, 0.25)" : "rgba(100, 116, 139, 0.2)",
                         }}
-                      />
-                      <Chip
-                        onClick={() => handleToggleVerified(item)}
-                        disabled={isBusy}
-                        icon={item.isVerified ? <ShieldCheck size={10} /> : <ShieldAlert size={10} />}
-                        label={item.isVerified ? "Verified" : "Unverified"}
-                        size="small"
-                        clickable
+                      >
+                        <Switch
+                          size="small"
+                          checked={Boolean(item.isVerified)}
+                          disabled={isBusy}
+                          color="success"
+                          sx={{
+                            p: 0,
+                            width: 28,
+                            height: 16,
+                            "& .MuiSwitch-switchBase": {
+                              p: 0.2,
+                              "&.Mui-checked": {
+                                transform: "translateX(12px)",
+                                color: "#fff",
+                                "& + .MuiSwitch-track": { backgroundColor: "#10b981", opacity: 1 },
+                              },
+                            },
+                            "& .MuiSwitch-thumb": { width: 12, height: 12 },
+                            "& .MuiSwitch-track": { borderRadius: 8, backgroundColor: "rgba(148, 163, 184, 0.5)", opacity: 1 },
+                          }}
+                        />
+                        <Typography sx={{ fontSize: "0.625rem", fontWeight: 700, color: item.isVerified ? "#059669" : "#64748b" }}>
+                          {item.isVerified ? "Verified" : "Off"}
+                        </Typography>
+                      </Box>
+
+                      {/* Live Switch */}
+                      <Box
+                        onClick={() => !isBusy && handleToggleStatus(item)}
                         sx={{
-                          height: 22, fontSize: "0.625rem", fontWeight: 600,
-                          backgroundColor: item.isVerified ? "rgba(16, 185, 129, 0.12)" : "rgba(107, 114, 128, 0.15)",
-                          color: item.isVerified ? "#34D399" : "#9CA3AF",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 0.5,
+                          cursor: isBusy ? "not-allowed" : "pointer",
+                          px: 1,
+                          py: 0.25,
+                          borderRadius: "16px",
+                          backgroundColor: item.status === "approved" ? "rgba(16, 185, 129, 0.08)" : "rgba(245, 158, 11, 0.08)",
+                          border: "1px solid",
+                          borderColor: item.status === "approved" ? "rgba(16, 185, 129, 0.25)" : "rgba(245, 158, 11, 0.25)",
                         }}
-                      />
+                      >
+                        <Switch
+                          size="small"
+                          checked={item.status === "approved"}
+                          disabled={isBusy}
+                          color="success"
+                          sx={{
+                            p: 0,
+                            width: 28,
+                            height: 16,
+                            "& .MuiSwitch-switchBase": {
+                              p: 0.2,
+                              "&.Mui-checked": {
+                                transform: "translateX(12px)",
+                                color: "#fff",
+                                "& + .MuiSwitch-track": { backgroundColor: "#10b981", opacity: 1 },
+                              },
+                            },
+                            "& .MuiSwitch-thumb": { width: 12, height: 12 },
+                            "& .MuiSwitch-track": { borderRadius: 8, backgroundColor: "rgba(245, 158, 11, 0.5)", opacity: 1 },
+                          }}
+                        />
+                        <Typography sx={{ fontSize: "0.625rem", fontWeight: 700, color: item.status === "approved" ? "#059669" : "#d97706" }}>
+                          {item.status === "approved" ? "Live" : "Draft"}
+                        </Typography>
+                      </Box>
                     </Box>
                   </Box>
 
@@ -833,43 +892,150 @@ const FeedbackManager = () => {
 
                       {/* Verification Toggle */}
                       <TableCell align="center">
-                        <Chip
-                          onClick={() => handleToggleVerified(item)}
-                          disabled={isBusy}
-                          icon={item.isVerified ? <ShieldCheck size={12} /> : <ShieldAlert size={12} />}
-                          label={item.isVerified ? "Verified" : "Unverified"}
-                          size="small"
-                          clickable
+                        <Box
+                          onClick={() => !isBusy && handleToggleVerified(item)}
                           sx={{
-                            backgroundColor: item.isVerified ? "rgba(16, 185, 129, 0.12)" : "rgba(107, 114, 128, 0.15)",
-                            color: item.isVerified ? "#34D399" : "#9CA3AF",
-                            border: `1px solid ${item.isVerified ? "rgba(16, 185, 129, 0.3)" : "rgba(107, 114, 128, 0.25)"}`,
-                            fontWeight: 600,
-                            fontSize: "0.6875rem",
-                            cursor: "pointer",
-                            height: 24,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 1,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: "20px",
+                            transition: "all 0.2s ease",
+                            backgroundColor: item.isVerified
+                              ? "rgba(16, 185, 129, 0.08)"
+                              : "rgba(100, 116, 139, 0.08)",
+                            border: "1px solid",
+                            borderColor: item.isVerified
+                              ? "rgba(16, 185, 129, 0.25)"
+                              : "rgba(100, 116, 139, 0.2)",
+                            "&:hover": {
+                              borderColor: item.isVerified
+                                ? "rgba(16, 185, 129, 0.5)"
+                                : "rgba(100, 116, 139, 0.4)",
+                            },
                           }}
-                        />
+                        >
+                          <Switch
+                            size="small"
+                            checked={Boolean(item.isVerified)}
+                            disabled={isBusy}
+                            color="success"
+                            sx={{
+                              p: 0,
+                              width: 32,
+                              height: 18,
+                              "& .MuiSwitch-switchBase": {
+                                p: 0.25,
+                                "&.Mui-checked": {
+                                  transform: "translateX(14px)",
+                                  color: "#fff",
+                                  "& + .MuiSwitch-track": {
+                                    backgroundColor: "#10b981",
+                                    opacity: 1,
+                                  },
+                                },
+                              },
+                              "& .MuiSwitch-thumb": {
+                                width: 14,
+                                height: 14,
+                              },
+                              "& .MuiSwitch-track": {
+                                borderRadius: 10,
+                                backgroundColor: "rgba(148, 163, 184, 0.5)",
+                                opacity: 1,
+                              },
+                            }}
+                          />
+                          <Typography
+                            sx={{
+                              fontSize: "0.6875rem",
+                              fontWeight: 700,
+                              color: item.isVerified ? "#059669" : "#64748b",
+                              letterSpacing: "0.02em",
+                              userSelect: "none",
+                              minWidth: "48px",
+                              textAlign: "left",
+                            }}
+                          >
+                            {item.isVerified ? "Verified" : "Off"}
+                          </Typography>
+                        </Box>
                       </TableCell>
 
                       {/* Publication Status Toggle */}
                       <TableCell align="center">
-                        <Chip
-                          onClick={() => handleToggleStatus(item)}
-                          disabled={isBusy}
-                          label={item.status === "approved" ? "Live" : "Pending"}
-                          size="small"
-                          clickable
+                        <Box
+                          onClick={() => !isBusy && handleToggleStatus(item)}
                           sx={{
-                            backgroundColor: item.status === "approved" ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)",
-                            color: item.status === "approved" ? "#34D399" : "#FBBF24",
-                            border: `1px solid ${item.status === "approved" ? "rgba(16, 185, 129, 0.3)" : "rgba(245, 158, 11, 0.3)"}`,
-                            fontWeight: 700,
-                            fontSize: "0.6875rem",
-                            cursor: "pointer",
-                            height: 24,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 1,
+                            cursor: isBusy ? "not-allowed" : "pointer",
+                            px: 1.5,
+                            py: 0.5,
+                            borderRadius: "20px",
+                            transition: "all 0.2s ease",
+                            backgroundColor: item.status === "approved"
+                              ? "rgba(16, 185, 129, 0.08)"
+                              : "rgba(245, 158, 11, 0.08)",
+                            border: "1px solid",
+                            borderColor: item.status === "approved"
+                              ? "rgba(16, 185, 129, 0.25)"
+                              : "rgba(245, 158, 11, 0.25)",
+                            "&:hover": {
+                              borderColor: item.status === "approved"
+                                ? "rgba(16, 185, 129, 0.5)"
+                                : "rgba(245, 158, 11, 0.5)",
+                            },
                           }}
-                        />
+                        >
+                          <Switch
+                            size="small"
+                            checked={item.status === "approved"}
+                            disabled={isBusy}
+                            color="success"
+                            sx={{
+                              p: 0,
+                              width: 32,
+                              height: 18,
+                              "& .MuiSwitch-switchBase": {
+                                p: 0.25,
+                                "&.Mui-checked": {
+                                  transform: "translateX(14px)",
+                                  color: "#fff",
+                                  "& + .MuiSwitch-track": {
+                                    backgroundColor: "#10b981",
+                                    opacity: 1,
+                                  },
+                                },
+                              },
+                              "& .MuiSwitch-thumb": {
+                                width: 14,
+                                height: 14,
+                              },
+                              "& .MuiSwitch-track": {
+                                borderRadius: 10,
+                                backgroundColor: "rgba(245, 158, 11, 0.5)",
+                                opacity: 1,
+                              },
+                            }}
+                          />
+                          <Typography
+                            sx={{
+                              fontSize: "0.6875rem",
+                              fontWeight: 700,
+                              color: item.status === "approved" ? "#059669" : "#d97706",
+                              letterSpacing: "0.02em",
+                              userSelect: "none",
+                              minWidth: "44px",
+                              textAlign: "left",
+                            }}
+                          >
+                            {item.status === "approved" ? "Live" : "Draft"}
+                          </Typography>
+                        </Box>
                       </TableCell>
 
                       {/* Actions */}

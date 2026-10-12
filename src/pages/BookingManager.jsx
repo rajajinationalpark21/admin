@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import api from "../api/apiClient";
 import {
   Box,
@@ -20,7 +20,6 @@ import {
   Paper,
   IconButton,
   Tooltip,
-  Collapse,
   Snackbar,
   Dialog,
   DialogTitle,
@@ -28,41 +27,56 @@ import {
   DialogActions,
   useMediaQuery,
   useTheme,
+  TextField,
+  InputAdornment,
+  TablePagination,
+  Divider,
+  Switch,
+  FormControlLabel,
 } from "@mui/material";
 import {
   Refresh as RefreshIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
   Delete as DeleteIcon,
-  CheckCircle as CheckCircleIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
   People as PeopleIcon,
   CalendarMonth as CalendarIcon,
   FlightTakeoff as ShiftIcon,
   Park as ZoneIcon,
-  Undo as UndoIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Search as SearchIcon,
+  Close as CloseIcon,
+  Notes as NotesIcon,
+  Tag as TagIcon,
+  AccessTime as AccessTimeIcon,
 } from "@mui/icons-material";
 import { BOOKINGS_GET, BOOKINGS_UPDATE, BOOKINGS_DELETE } from "../constants/endpoints";
 
-const STATUS_OPTIONS = ["All", "new", "contacted", "confirmed", "cancelled"];
-
-const STATUS_COLORS = {
-  new: "info",
-  contacted: "warning",
-  confirmed: "success",
-  cancelled: "error",
-};
+const STATUS_FILTER_OPTIONS = [
+  { value: "All", label: "All Inquiries" },
+  { value: "not_viewed", label: "Not Viewed" },
+  { value: "viewed", label: "Viewed" },
+];
 
 export default function BookingManager() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [expandedId, setExpandedId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [processingId, setProcessingId] = useState(null);
-  const [snackbar, setSnackbar] = useState({ open: false, msg: "", severity: "success" });
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  
+  // Full Details Modal Dialog
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  
+  // Delete Dialog
   const [deleteDialog, setDeleteDialog] = useState({ open: false, booking: null });
+  
+  // Notification Snackbar
+  const [snackbar, setSnackbar] = useState({ open: false, msg: "", severity: "success" });
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -71,32 +85,57 @@ export default function BookingManager() {
     setLoading(true);
     setError("");
     try {
-      const params = statusFilter !== "All" ? { status: statusFilter } : {};
-      const res = await api.get(BOOKINGS_GET, { params });
+      const res = await api.get(BOOKINGS_GET);
       setBookings(res.data?.bookings || []);
     } catch {
-      setError("Failed to load bookings");
+      setError("Failed to load booking inquiries");
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, []);
 
   useEffect(() => {
     fetchBookings();
   }, [fetchBookings]);
 
-  const handleStatusChange = async (bookingId, newStatus) => {
-    setProcessingId(bookingId);
+  // Toggle Viewed / Not Viewed
+  const handleToggleStatus = async (booking) => {
+    const isCurrentlyViewed = booking.status === "viewed";
+    const nextStatus = isCurrentlyViewed ? "not_viewed" : "viewed";
+    setProcessingId(booking._id);
     try {
-      await api.patch(BOOKINGS_UPDATE, { bookingId, status: newStatus });
+      await api.patch(BOOKINGS_UPDATE, { bookingId: booking._id, status: nextStatus });
       setBookings((prev) =>
-        prev.map((b) => (b._id === bookingId ? { ...b, status: newStatus } : b))
+        prev.map((b) => (b._id === booking._id ? { ...b, status: nextStatus } : b))
       );
-      setSnackbar({ open: true, msg: "Status updated", severity: "success" });
+      if (selectedBooking && selectedBooking._id === booking._id) {
+        setSelectedBooking((prev) => ({ ...prev, status: nextStatus }));
+      }
+      setSnackbar({
+        open: true,
+        msg: `Marked as ${nextStatus === "viewed" ? "Viewed" : "Not Viewed"}`,
+        severity: "success",
+      });
     } catch {
-      setSnackbar({ open: true, msg: "Failed to update", severity: "error" });
+      setSnackbar({ open: true, msg: "Failed to update status", severity: "error" });
     } finally {
       setProcessingId(null);
+    }
+  };
+
+  // Open Full Details modal and automatically mark as viewed if not already
+  const handleViewFullDetails = async (booking) => {
+    setSelectedBooking(booking);
+    if (booking.status !== "viewed") {
+      try {
+        await api.patch(BOOKINGS_UPDATE, { bookingId: booking._id, status: "viewed" });
+        setBookings((prev) =>
+          prev.map((b) => (b._id === booking._id ? { ...b, status: "viewed" } : b))
+        );
+        setSelectedBooking((prev) => (prev ? { ...prev, status: "viewed" } : prev));
+      } catch {
+        // silent fail for auto-view
+      }
     }
   };
 
@@ -108,16 +147,20 @@ export default function BookingManager() {
         data: { bookingId: deleteDialog.booking._id },
       });
       setBookings((prev) => prev.filter((b) => b._id !== deleteDialog.booking._id));
+      if (selectedBooking && selectedBooking._id === deleteDialog.booking._id) {
+        setSelectedBooking(null);
+      }
       setDeleteDialog({ open: false, booking: null });
-      setSnackbar({ open: true, msg: "Booking deleted", severity: "success" });
+      setSnackbar({ open: true, msg: "Booking inquiry deleted", severity: "success" });
     } catch {
-      setSnackbar({ open: true, msg: "Failed to delete", severity: "error" });
+      setSnackbar({ open: true, msg: "Failed to delete inquiry", severity: "error" });
     } finally {
       setProcessingId(null);
     }
   };
 
   const formatDate = (dateStr) => {
+    if (!dateStr) return "—";
     try {
       return new Date(dateStr).toLocaleDateString("en-IN", {
         day: "numeric",
@@ -129,6 +172,55 @@ export default function BookingManager() {
     }
   };
 
+  const formatTimestamp = (dateStr) => {
+    if (!dateStr) return "—";
+    try {
+      return new Date(dateStr).toLocaleString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  // Filter inquiries by search and viewed/not_viewed
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((b) => {
+      // Filter status
+      const isViewed = b.status === "viewed";
+      if (statusFilter === "viewed" && !isViewed) return false;
+      if (statusFilter === "not_viewed" && isViewed) return false;
+
+      // Filter search query
+      if (!searchTerm) return true;
+      const q = searchTerm.toLowerCase();
+      const name = (b.name || "").toLowerCase();
+      const email = (b.email || "").toLowerCase();
+      const phone = (b.phone || "").toLowerCase();
+      const ref = (b.refNumber || "").toLowerCase();
+      const zone = (b.zone || "").toLowerCase();
+      return (
+        name.includes(q) ||
+        email.includes(q) ||
+        phone.includes(q) ||
+        ref.includes(q) ||
+        zone.includes(q)
+      );
+    });
+  }, [bookings, statusFilter, searchTerm]);
+
+  const paginatedBookings = useMemo(() => {
+    return filteredBookings.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [filteredBookings, page, rowsPerPage]);
+
+  const notViewedCount = useMemo(() => {
+    return bookings.filter((b) => b.status !== "viewed").length;
+  }, [bookings]);
+
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", p: 6 }}>
@@ -139,28 +231,95 @@ export default function BookingManager() {
 
   return (
     <Box sx={{ p: isMobile ? 1.5 : 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
-        <Typography variant="h5" fontWeight={800} sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem" }}>
-          Safari Bookings
-        </Typography>
+      {/* Page Header */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography
+            variant="h5"
+            fontWeight={800}
+            sx={{ fontSize: isMobile ? "1.25rem" : "1.5rem", display: "flex", alignItems: "center", gap: 1.5 }}
+          >
+            Safari Inquiries
+            {notViewedCount > 0 && (
+              <Chip
+                label={`${notViewedCount} Not Viewed`}
+                color="warning"
+                size="small"
+                sx={{ fontWeight: 700, fontSize: "0.75rem" }}
+              />
+            )}
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            Read-only visitor permit inquiries with full details view and status tracking.
+          </Typography>
+        </Box>
+
         <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", flexWrap: "wrap" }}>
-          <FormControl size="small" sx={{ minWidth: 120 }}>
+          {/* Status Filter */}
+          <FormControl size="small" sx={{ minWidth: 140 }}>
             <InputLabel>Status</InputLabel>
             <Select
               value={statusFilter}
               label="Status"
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(0);
+              }}
             >
-              {STATUS_OPTIONS.map((s) => (
-                <MenuItem key={s} value={s}>{s === "All" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}</MenuItem>
+              {STATUS_FILTER_OPTIONS.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          {/* Search Box */}
+          <TextField
+            size="small"
+            placeholder="Search guest, phone, ref..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(0);
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={() => setSearchTerm("")}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
+            }}
+            sx={{ minWidth: 200 }}
+          />
+
           <Button
             variant="contained"
             startIcon={<RefreshIcon />}
             onClick={fetchBookings}
-            sx={{ backgroundColor: "#47a447", "&:hover": { backgroundColor: "#3d8c3d" }, textTransform: "none", fontWeight: 600 }}
+            sx={{
+              backgroundColor: "#47a447",
+              "&:hover": { backgroundColor: "#3d8c3d" },
+              textTransform: "none",
+              fontWeight: 600,
+              borderRadius: 2,
+            }}
           >
             Refresh
           </Button>
@@ -169,270 +328,444 @@ export default function BookingManager() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {bookings.length === 0 ? (
-        <Alert severity="info">No booking inquiries found.</Alert>
+      {filteredBookings.length === 0 ? (
+        <Alert severity="info" sx={{ borderRadius: 2 }}>
+          No safari inquiries found {statusFilter !== "All" ? `with status "${statusFilter}"` : ""}.
+        </Alert>
       ) : isMobile ? (
+        /* Mobile Card View */
         <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-          {bookings.map((booking) => (
-            <Paper
-              key={booking._id}
-              sx={{
-                borderRadius: 3,
-                overflow: "hidden",
-                border: "1px solid",
-                borderColor: "divider",
-                transition: "all 0.3s ease",
-                animation: "slideUp 0.3s ease",
-                "@keyframes slideUp": {
-                  from: { opacity: 0, transform: "translateY(10px)" },
-                  to: { opacity: 1, transform: "translateY(0)" },
-                },
-              }}
-            >
-              {/* Header */}
-              <Box sx={{ p: 2, display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flex: 1, minWidth: 0 }}>
-                  <Box sx={{ width: 40, height: 40, borderRadius: 2, bgcolor: "#e8f5e9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                    <PeopleIcon sx={{ color: "#47a447", fontSize: 20 }} />
+          {paginatedBookings.map((booking) => {
+            const isViewed = booking.status === "viewed";
+            return (
+              <Paper
+                key={booking._id}
+                sx={{
+                  borderRadius: 3,
+                  overflow: "hidden",
+                  border: "1px solid",
+                  borderColor: isViewed ? "divider" : "#f59e0b",
+                  backgroundColor: isViewed ? "background.paper" : "rgba(245, 158, 11, 0.03)",
+                  p: 2,
+                }}
+              >
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                  <Box>
+                    <Typography fontWeight={700} fontSize="0.95rem">{booking.name}</Typography>
+                    <Typography fontSize="0.75rem" color="text.secondary" fontFamily="monospace">
+                      {booking.refNumber || "—"}
+                    </Typography>
                   </Box>
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography fontWeight={700} fontSize="0.9rem" noWrap>{booking.name}</Typography>
-                    <Typography fontSize="0.75rem" color="text.secondary" noWrap>{booking.refNumber}</Typography>
-                  </Box>
-                </Box>
-                <Chip
-                  label={booking.status}
-                  color={STATUS_COLORS[booking.status] || "default"}
-                  size="small"
-                  sx={{ fontWeight: 600, fontSize: "0.7rem", flexShrink: 0 }}
-                />
-              </Box>
-
-              {/* Quick info */}
-              <Box sx={{ px: 2, pb: 1, display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                <Chip icon={<ZoneIcon sx={{ fontSize: 14 }} />} label={booking.zone} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
-                <Chip icon={<CalendarIcon sx={{ fontSize: 14 }} />} label={formatDate(booking.date)} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
-                <Chip icon={<ShiftIcon sx={{ fontSize: 14 }} />} label={booking.shift} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
-                <Chip icon={<PeopleIcon sx={{ fontSize: 14 }} />} label={`${booking.guests} guests`} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
-              </Box>
-
-              {/* Expanded details */}
-              <Collapse in={expandedId === booking._id} timeout={300}>
-                <Box sx={{ px: 2, pb: 2, pt: 1, borderTop: "1px solid", borderColor: "divider" }}>
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                    {booking.email && (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <EmailIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                        <Typography fontSize="0.8rem">{booking.email}</Typography>
-                      </Box>
-                    )}
-                    {booking.phone && (
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <PhoneIcon sx={{ fontSize: 14, color: "text.secondary" }} />
-                        <Typography fontSize="0.8rem">{booking.phone}</Typography>
-                      </Box>
-                    )}
-                    {booking.specialRequests && (
-                      <Box sx={{ mt: 1 }}>
-                        <Typography fontSize="0.75rem" fontWeight={600} color="text.secondary">Special Requests:</Typography>
-                        <Typography fontSize="0.8rem">{booking.specialRequests}</Typography>
-                      </Box>
-                    )}
-                  </Box>
-
-                  {/* Status actions */}
-                  <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
-                    {booking.status === "new" && (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        startIcon={<PhoneIcon />}
-                        disabled={processingId === booking._id}
-                        onClick={() => handleStatusChange(booking._id, "contacted")}
-                        sx={{ textTransform: "none", fontWeight: 600, bgcolor: "#f59e0b", "&:hover": { bgcolor: "#d97706" } }}
-                      >
-                        Mark Contacted
-                      </Button>
-                    )}
-                    {booking.status === "contacted" && (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        startIcon={<CheckCircleIcon />}
-                        disabled={processingId === booking._id}
-                        onClick={() => handleStatusChange(booking._id, "confirmed")}
-                        sx={{ textTransform: "none", fontWeight: 600, bgcolor: "#47a447", "&:hover": { bgcolor: "#3d8c3d" } }}
-                      >
-                        Mark Confirmed
-                      </Button>
-                    )}
-                    {booking.status !== "new" && (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<UndoIcon />}
-                        disabled={processingId === booking._id}
-                        onClick={() => handleStatusChange(booking._id, "new")}
-                        sx={{ textTransform: "none", fontWeight: 600 }}
-                      >
-                        Reset to New
-                      </Button>
-                    )}
-                    {booking.status !== "cancelled" && (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="error"
-                        disabled={processingId === booking._id}
-                        onClick={() => handleStatusChange(booking._id, "cancelled")}
-                        sx={{ textTransform: "none", fontWeight: 600 }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                  </Box>
-                </Box>
-              </Collapse>
-
-              {/* Footer */}
-              <Box sx={{ px: 2, py: 1, display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid", borderColor: "divider" }}>
-                <Typography fontSize="0.7rem" color="text.secondary">
-                  {new Date(booking.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
-                </Typography>
-                <Box>
-                  <IconButton
+                  <Chip
+                    icon={isViewed ? <VisibilityIcon sx={{ fontSize: 13 }} /> : <VisibilityOffIcon sx={{ fontSize: 13 }} />}
+                    label={isViewed ? "Viewed" : "Not Viewed"}
+                    color={isViewed ? "success" : "warning"}
                     size="small"
-                    onClick={() => setExpandedId(expandedId === booking._id ? null : booking._id)}
-                  >
-                    {expandedId === booking._id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => setDeleteDialog({ open: true, booking })}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
+                    sx={{ fontWeight: 700, fontSize: "0.7rem" }}
+                  />
                 </Box>
-              </Box>
-            </Paper>
-          ))}
+
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 1.5 }}>
+                  <Chip icon={<ZoneIcon sx={{ fontSize: 13 }} />} label={booking.zone} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
+                  <Chip icon={<CalendarIcon sx={{ fontSize: 13 }} />} label={formatDate(booking.date)} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
+                  <Chip icon={<ShiftIcon sx={{ fontSize: 13 }} />} label={booking.shift} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
+                  <Chip icon={<PeopleIcon sx={{ fontSize: 13 }} />} label={`${booking.guests || 2} Guests`} size="small" variant="outlined" sx={{ fontSize: "0.7rem" }} />
+                </Box>
+
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", pt: 1, borderTop: "1px solid", borderColor: "divider" }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<VisibilityIcon />}
+                    onClick={() => handleViewFullDetails(booking)}
+                    sx={{ textTransform: "none", fontWeight: 600, fontSize: "0.75rem", borderRadius: 2 }}
+                  >
+                    View Full Details
+                  </Button>
+
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Tooltip title={isViewed ? "Mark as Not Viewed" : "Mark as Viewed"}>
+                      <Switch
+                        size="small"
+                        checked={isViewed}
+                        disabled={processingId === booking._id}
+                        onChange={() => handleToggleStatus(booking)}
+                        color="success"
+                      />
+                    </Tooltip>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => setDeleteDialog({ open: true, booking })}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </Box>
+              </Paper>
+            );
+          })}
         </Box>
       ) : (
-        <TableContainer component={Paper} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
-          <Table size="small">
+        /* Desktop Table View */
+        <TableContainer component={Paper} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider", overflow: "hidden" }}>
+          <Table size="medium">
             <TableHead>
-              <TableRow sx={{ bgcolor: "#f8f9fa" }}>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Name</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Ref</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Zone</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Shift</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Guests</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 700, fontSize: "0.8rem" }}>Actions</TableCell>
+              <TableRow sx={{ bgcolor: "#f8faf9" }}>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>GUEST NAME</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>REF ID</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>ZONE & TIMING</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>SAFARI DATE</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>GUESTS</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>PHONE</TableCell>
+                <TableCell sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>STATUS</TableCell>
+                <TableCell align="right" sx={{ fontWeight: 800, fontSize: "0.8rem", color: "text.secondary" }}>ACTIONS</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {bookings.map((booking) => (
-                <React.Fragment key={booking._id}>
-                  <TableRow hover>
+              {paginatedBookings.map((booking) => {
+                const isViewed = booking.status === "viewed";
+                return (
+                  <TableRow
+                    key={booking._id}
+                    hover
+                    sx={{
+                      cursor: "pointer",
+                      bgcolor: isViewed ? "inherit" : "rgba(245, 158, 11, 0.03)",
+                      transition: "background-color 0.2s",
+                    }}
+                    onClick={() => handleViewFullDetails(booking)}
+                  >
                     <TableCell>
-                      <Typography fontWeight={600} fontSize="0.85rem">{booking.name}</Typography>
-                      <Typography fontSize="0.75rem" color="text.secondary">{booking.email || "—"}</Typography>
+                      <Typography fontWeight={700} fontSize="0.875rem">{booking.name}</Typography>
+                      <Typography fontSize="0.75rem" color="text.secondary">{booking.email || "No email"}</Typography>
                     </TableCell>
-                    <TableCell><Typography fontSize="0.8rem" fontFamily="monospace">{booking.refNumber}</Typography></TableCell>
-                    <TableCell><Typography fontSize="0.8rem">{booking.zone}</Typography></TableCell>
-                    <TableCell><Typography fontSize="0.8rem">{booking.date}</Typography></TableCell>
-                    <TableCell><Typography fontSize="0.8rem">{booking.shift}</Typography></TableCell>
-                    <TableCell><Typography fontSize="0.8rem">{booking.guests}</Typography></TableCell>
+
                     <TableCell>
-                      <Chip label={booking.status} color={STATUS_COLORS[booking.status] || "default"} size="small" sx={{ fontWeight: 600, fontSize: "0.7rem" }} />
+                      <Typography fontSize="0.8rem" fontFamily="monospace" fontWeight={600} color="text.secondary">
+                        {booking.refNumber || "—"}
+                      </Typography>
                     </TableCell>
+
                     <TableCell>
-                      <Box sx={{ display: "flex", gap: 0.5, alignItems: "center" }}>
-                        <Tooltip title="View details">
-                          <IconButton size="small" onClick={() => setExpandedId(expandedId === booking._id ? null : booking._id)}>
-                            {expandedId === booking._id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                          </IconButton>
-                        </Tooltip>
-                        {booking.status === "new" && (
-                          <Tooltip title="Mark contacted">
-                            <IconButton size="small" disabled={processingId === booking._id} onClick={() => handleStatusChange(booking._id, "contacted")} sx={{ color: "#f59e0b" }}>
-                              <PhoneIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        {booking.status === "contacted" && (
-                          <Tooltip title="Mark confirmed">
-                            <IconButton size="small" disabled={processingId === booking._id} onClick={() => handleStatusChange(booking._id, "confirmed")} sx={{ color: "#47a447" }}>
-                              <CheckCircleIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                        <Tooltip title="Delete">
-                          <IconButton size="small" color="error" onClick={() => setDeleteDialog({ open: true, booking })}>
+                      <Typography fontSize="0.85rem" fontWeight={600}>{booking.zone}</Typography>
+                      <Typography fontSize="0.75rem" color="text.secondary">{booking.shift}</Typography>
+                    </TableCell>
+
+                    <TableCell>
+                      <Typography fontSize="0.85rem" fontWeight={500}>{formatDate(booking.date)}</Typography>
+                    </TableCell>
+
+                    <TableCell>
+                      <Chip
+                        label={`${booking.guests || 2} Guests`}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: "0.75rem", fontWeight: 600 }}
+                      />
+                    </TableCell>
+
+                    <TableCell>
+                      <Typography fontSize="0.85rem" fontWeight={600} fontFamily="monospace">
+                        {booking.phone || "—"}
+                      </Typography>
+                    </TableCell>
+
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={isViewed}
+                            disabled={processingId === booking._id}
+                            onChange={() => handleToggleStatus(booking)}
+                            color="success"
+                          />
+                        }
+                        label={
+                          <Chip
+                            icon={isViewed ? <VisibilityIcon sx={{ fontSize: 13 }} /> : <VisibilityOffIcon sx={{ fontSize: 13 }} />}
+                            label={isViewed ? "Viewed" : "Not Viewed"}
+                            color={isViewed ? "success" : "warning"}
+                            size="small"
+                            sx={{ fontWeight: 700, fontSize: "0.7rem", pointerEvents: "none" }}
+                          />
+                        }
+                      />
+                    </TableCell>
+
+                    <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                      <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end", alignItems: "center" }}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<VisibilityIcon fontSize="small" />}
+                          onClick={() => handleViewFullDetails(booking)}
+                          sx={{ textTransform: "none", fontSize: "0.75rem", fontWeight: 600, borderRadius: 1.5 }}
+                        >
+                          View Full
+                        </Button>
+                        <Tooltip title="Delete inquiry">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => setDeleteDialog({ open: true, booking })}
+                          >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={8} sx={{ p: 0, border: "none" }}>
-                      <Collapse in={expandedId === booking._id} timeout={300}>
-                        <Box sx={{ p: 2, bgcolor: "#f8f9fa", display: "flex", gap: 4, flexWrap: "wrap" }}>
-                          <Box>
-                            <Typography fontSize="0.75rem" fontWeight={600} color="text.secondary">Phone</Typography>
-                            <Typography fontSize="0.85rem">{booking.phone || "—"}</Typography>
-                          </Box>
-                          <Box>
-                            <Typography fontSize="0.75rem" fontWeight={600} color="text.secondary">Special Requests</Typography>
-                            <Typography fontSize="0.85rem">{booking.specialRequests || "—"}</Typography>
-                          </Box>
-                          <Box>
-                            <Typography fontSize="0.75rem" fontWeight={600} color="text.secondary">Submitted</Typography>
-                            <Typography fontSize="0.85rem">{new Date(booking.createdAt).toLocaleString("en-IN")}</Typography>
-                          </Box>
-                          <Box sx={{ display: "flex", gap: 1, alignItems: "center", ml: "auto" }}>
-                            {booking.status !== "cancelled" && (
-                              <Button size="small" variant="outlined" color="error" disabled={processingId === booking._id} onClick={() => handleStatusChange(booking._id, "cancelled")} sx={{ textTransform: "none" }}>
-                                Cancel Booking
-                              </Button>
-                            )}
-                          </Box>
-                        </Box>
-                      </Collapse>
-                    </TableCell>
-                  </TableRow>
-                </React.Fragment>
-              ))}
+                );
+              })}
             </TableBody>
           </Table>
+
+          {/* Table Pagination */}
+          <TablePagination
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            component="div"
+            count={filteredBookings.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={(e, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
+          />
         </TableContainer>
       )}
 
+      {/* FULL DETAILS MODAL DIALOG */}
+      <Dialog
+        open={Boolean(selectedBooking)}
+        onClose={() => setSelectedBooking(null)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: { borderRadius: 3, p: 1 },
+        }}
+      >
+        {selectedBooking && (
+          <>
+            <DialogTitle sx={{ pb: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <Box>
+                <Typography variant="h6" fontWeight={800}>
+                  Safari Inquiry Details
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  Read-only inquiry submitted by visitor
+                </Typography>
+              </Box>
+              <IconButton onClick={() => setSelectedBooking(null)} size="small">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            <Divider />
+
+            <DialogContent sx={{ pt: 2.5, pb: 2 }}>
+              {/* Status Header */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  p: 2,
+                  mb: 2.5,
+                  borderRadius: 2,
+                  bgcolor: selectedBooking.status === "viewed" ? "rgba(16, 185, 129, 0.08)" : "rgba(245, 158, 11, 0.08)",
+                  border: "1px solid",
+                  borderColor: selectedBooking.status === "viewed" ? "rgba(16, 185, 129, 0.3)" : "rgba(245, 158, 11, 0.3)",
+                }}
+              >
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} display="block">
+                    INQUIRY STATUS
+                  </Typography>
+                  <Typography variant="body1" fontWeight={700} color={selectedBooking.status === "viewed" ? "success.main" : "warning.main"}>
+                    {selectedBooking.status === "viewed" ? "Viewed" : "Not Viewed"}
+                  </Typography>
+                </Box>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color={selectedBooking.status === "viewed" ? "warning" : "success"}
+                  onClick={() => handleToggleStatus(selectedBooking)}
+                  startIcon={selectedBooking.status === "viewed" ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                  sx={{ textTransform: "none", fontWeight: 700 }}
+                >
+                  Mark as {selectedBooking.status === "viewed" ? "Not Viewed" : "Viewed"}
+                </Button>
+              </Box>
+
+              {/* Data Grid */}
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+                {/* Reference ID */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <TagIcon sx={{ fontSize: 14 }} /> Reference Number
+                  </Typography>
+                  <Typography variant="body2" fontWeight={800} fontFamily="monospace" sx={{ mt: 0.5 }}>
+                    {selectedBooking.refNumber || "—"}
+                  </Typography>
+                </Box>
+
+                {/* Submitted Timestamp */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <AccessTimeIcon sx={{ fontSize: 14 }} /> Inquiry Submitted At
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                    {formatTimestamp(selectedBooking.createdAt)}
+                  </Typography>
+                </Box>
+
+                {/* Guest Name */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <PeopleIcon sx={{ fontSize: 14 }} /> Primary Guest Name
+                  </Typography>
+                  <Typography variant="body1" fontWeight={700} sx={{ mt: 0.5 }}>
+                    {selectedBooking.name || "—"}
+                  </Typography>
+                </Box>
+
+                {/* Phone */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <PhoneIcon sx={{ fontSize: 14 }} /> WhatsApp Mobile Number
+                  </Typography>
+                  <Typography variant="body1" fontWeight={800} fontFamily="monospace" color="primary.main" sx={{ mt: 0.5 }}>
+                    {selectedBooking.phone ? (
+                      <a href={`tel:${selectedBooking.phone}`} style={{ color: "inherit", textDecoration: "none" }}>
+                        {selectedBooking.phone}
+                      </a>
+                    ) : "—"}
+                  </Typography>
+                </Box>
+
+                {/* Email */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <EmailIcon sx={{ fontSize: 14 }} /> Email Address
+                  </Typography>
+                  <Typography variant="body2" fontWeight={600} sx={{ mt: 0.5 }}>
+                    {selectedBooking.email ? (
+                      <a href={`mailto:${selectedBooking.email}`} style={{ color: "inherit", textDecoration: "none" }}>
+                        {selectedBooking.email}
+                      </a>
+                    ) : "—"}
+                  </Typography>
+                </Box>
+
+                {/* Party Size */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <PeopleIcon sx={{ fontSize: 14 }} /> Number of Guests
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                    {selectedBooking.guests || 2} Guests
+                  </Typography>
+                </Box>
+
+                {/* Selected Range */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <ZoneIcon sx={{ fontSize: 14 }} /> Safari Zone / Range
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                    {selectedBooking.zone || "—"}
+                  </Typography>
+                </Box>
+
+                {/* Safari Date */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <CalendarIcon sx={{ fontSize: 14 }} /> Preferred Safari Date
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                    {formatDate(selectedBooking.date)}
+                  </Typography>
+                </Box>
+
+                {/* Shift / Slot */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2, gridColumn: { xs: "1", sm: "span 2" } }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <ShiftIcon sx={{ fontSize: 14 }} /> Shift Timing
+                  </Typography>
+                  <Typography variant="body2" fontWeight={700} sx={{ mt: 0.5 }}>
+                    {selectedBooking.shift || "—"}
+                  </Typography>
+                </Box>
+
+                {/* Special Requests */}
+                <Box sx={{ p: 1.5, bgcolor: "action.hover", borderRadius: 2, gridColumn: { xs: "1", sm: "span 2" } }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                    <NotesIcon sx={{ fontSize: 14 }} /> Special Requests / Notes
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5, fontStyle: selectedBooking.specialRequests ? "normal" : "italic", color: selectedBooking.specialRequests ? "text.primary" : "text.secondary" }}>
+                    {selectedBooking.specialRequests || "No special requests provided."}
+                  </Typography>
+                </Box>
+              </Box>
+            </DialogContent>
+
+            <Divider />
+
+            <DialogActions sx={{ px: 3, py: 2, justifyContent: "space-between" }}>
+              <Button
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => setDeleteDialog({ open: true, booking: selectedBooking })}
+                sx={{ textTransform: "none", fontWeight: 600 }}
+              >
+                Delete Inquiry
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={() => setSelectedBooking(null)}
+                sx={{ textTransform: "none", fontWeight: 700, backgroundColor: "#47a447", "&:hover": { backgroundColor: "#3d8c3d" }, borderRadius: 2 }}
+              >
+                Close
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
+
       {/* Delete confirmation dialog */}
-      <Dialog open={deleteDialog.open} onClose={() => setDeleteDialog({ open: false, booking: null })}>
-        <DialogTitle>Delete Booking</DialogTitle>
+      <Dialog
+        open={deleteDialog.open}
+        onClose={() => setDeleteDialog({ open: false, booking: null })}
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle fontWeight={700}>Delete Inquiry</DialogTitle>
         <DialogContent>
-          <Typography>
-            Are you sure you want to delete the booking from <strong>{deleteDialog.booking?.name}</strong> ({deleteDialog.booking?.refNumber})?
+          <Typography variant="body2">
+            Are you sure you want to delete the safari inquiry from <strong>{deleteDialog.booking?.name}</strong> ({deleteDialog.booking?.refNumber})?
           </Typography>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialog({ open: false, booking: null })}>Cancel</Button>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setDeleteDialog({ open: false, booking: null })} sx={{ textTransform: "none" }}>
+            Cancel
+          </Button>
           <Button
             variant="contained"
             color="error"
             disabled={processingId === deleteDialog.booking?._id}
             onClick={handleDelete}
+            sx={{ textTransform: "none", fontWeight: 700 }}
           >
             Delete
           </Button>
         </DialogActions>
       </Dialog>
 
+      {/* Snackbar feedback */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}

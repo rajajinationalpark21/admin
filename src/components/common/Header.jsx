@@ -1,13 +1,13 @@
 import { Box, Typography, Button } from "@mui/material";
 import { ExternalLink } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
+import NotificationMenu from "./NotificationMenu";
 import { useLocation } from "react-router-dom";
 
 const PAGE_TITLES = {
   "/dashboard": "Dashboard Overview",
   "/content": "Park Content Manager",
   "/blog": "Wilderness Blog",
-  "/gallery": "Photo Gallery",
   "/inquiries": "Contact Inquiries",
   "/feedback": "Visitor Feedback",
   "/settings": "System Settings",
@@ -111,6 +111,9 @@ export default function Header({ title, subtitle }) {
           >
             View Live Site
           </Button>
+
+          {/* Notification Menu (Bookings & Reviews) */}
+          <NotificationMenu />
 
           {/* Theme Selector Popover Dropdown */}
           <ThemeSelector />
