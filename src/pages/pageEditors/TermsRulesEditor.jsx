@@ -13,6 +13,7 @@ import {
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function TermsRulesEditor() {
@@ -174,6 +175,9 @@ export default function TermsRulesEditor() {
             placeholder="https://res.cloudinary.com/... or upload image"
             helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /terms hero banner"
           />
+          <Box sx={{ mt: 3 }}>
+            <HeroImageListField value={rulesData.heroImages} onChange={val => setRulesData(prev => ({ ...prev, heroImages: val }))} fallbackValue={rulesData.heroBanner} />
+          </Box>
         </Paper>
 
         {/* Navigation Tabs */}

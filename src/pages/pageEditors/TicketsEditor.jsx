@@ -10,6 +10,7 @@ import {
 import { Save, Plus, Trash2, Clock, DollarSign, Ticket } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function TicketsEditor() {
@@ -17,6 +18,7 @@ export default function TicketsEditor() {
     title: "",
     subtitle: "",
     heroBanner: "",
+    heroImages: [],
     timings: { summer: "", winter: "", openDates: "" },
     entranceFees: [],
     gypsyRates: [],
@@ -130,6 +132,7 @@ export default function TicketsEditor() {
             placeholder="https://res.cloudinary.com/..."
             helperText="Upload local photo (auto-compressed to WebP) or paste Cloudinary URL for the /tickets header banner"
           />
+          <Box sx={{ mt: 3 }}><HeroImageListField value={data.heroImages} onChange={val => setField("heroImages", val)} fallbackValue={data.heroBanner} /></Box>
         </Paper>
 
         {/* Safari Shift Timings */}

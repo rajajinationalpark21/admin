@@ -13,6 +13,7 @@ import {
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function ActivitiesEditor() {
@@ -26,6 +27,8 @@ export default function ActivitiesEditor() {
   const { data: raftData, setData: setRaftData, loading: raftLoading, saving: raftSaving, save: saveRaft } = useSectionContent("rafting", {
     title: "",
     subtitle: "",
+    heroBanner: "",
+    heroImages: [],
     overview: "",
     stretches: [],
     safetyGuidelines: [],
@@ -175,6 +178,9 @@ export default function ActivitiesEditor() {
                 placeholder="https://res.cloudinary.com/... or upload image"
                 helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /activities hero banner"
               />
+              <Box sx={{ mt: 3 }}>
+                <HeroImageListField value={actData.heroImages} onChange={val => setActData(prev => ({ ...prev, heroImages: val }))} fallbackValue={actData.heroBanner} />
+              </Box>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -250,6 +256,36 @@ export default function ActivitiesEditor() {
               <Button size="small" variant="outlined" onClick={addStretch} startIcon={<Plus size={14} />} sx={{ borderRadius: "8px", textTransform: "none", fontSize: "0.75rem" }}>
                 Add Rafting Stretch
               </Button>
+            </Box>
+
+            <Box sx={{ mb: 3, p: 2.5, borderRadius: "12px", border: "1px solid", borderColor: "divider" }}>
+              <Typography sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 2 }}>Rafting Page Header</Typography>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2, mb: 2 }}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Page Title"
+                  value={raftData.title || ""}
+                  onChange={e => setRaftData(prev => ({ ...prev, title: e.target.value }))}
+                />
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Page Subtitle"
+                  value={raftData.subtitle || ""}
+                  onChange={e => setRaftData(prev => ({ ...prev, subtitle: e.target.value }))}
+                />
+              </Box>
+              <ImageUploadField
+                label="Rafting Page Header Banner Image"
+                value={raftData.heroBanner || ""}
+                onChange={val => setRaftData(prev => ({ ...prev, heroBanner: val }))}
+                placeholder="https://res.cloudinary.com/... or upload image"
+                helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /rafting hero banner"
+              />
+              <Box sx={{ mt: 3 }}>
+                <HeroImageListField value={raftData.heroImages} onChange={val => setRaftData(prev => ({ ...prev, heroImages: val }))} fallbackValue={raftData.heroBanner} />
+              </Box>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>

@@ -15,6 +15,7 @@ import LoginPage from "./pages/Login-Page";
 
 // Dedicated Website Page Editors (Navbar System)
 import HomePageEditor from "./pages/pageEditors/HomePageEditor";
+import AboutPageEditor from "./pages/pageEditors/AboutPageEditor";
 import SafariZonesEditor from "./pages/pageEditors/SafariZonesEditor";
 import TicketsEditor from "./pages/pageEditors/TicketsEditor";
 import TermsRulesEditor from "./pages/pageEditors/TermsRulesEditor";
@@ -22,6 +23,7 @@ import ActivitiesEditor from "./pages/pageEditors/ActivitiesEditor";
 import WildlifeEditor from "./pages/pageEditors/WildlifeEditor";
 import StayEditor from "./pages/pageEditors/StayEditor";
 import FaqsEditor from "./pages/pageEditors/FaqsEditor";
+import BookingPageEditor from "./pages/pageEditors/BookingPageEditor";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -61,6 +63,7 @@ function AdminShell() {
 
             {/* Dedicated Website Page Editors */}
             <Route path="/pages/home" element={<ProtectedRoute><HomePageEditor /></ProtectedRoute>} />
+            <Route path="/pages/about" element={<ProtectedRoute><AboutPageEditor /></ProtectedRoute>} />
             <Route path="/pages/zones" element={<ProtectedRoute><SafariZonesEditor /></ProtectedRoute>} />
             <Route path="/pages/tickets" element={<ProtectedRoute><TicketsEditor /></ProtectedRoute>} />
             <Route path="/pages/terms" element={<ProtectedRoute><TermsRulesEditor /></ProtectedRoute>} />
@@ -68,6 +71,7 @@ function AdminShell() {
             <Route path="/pages/wildlife" element={<ProtectedRoute><WildlifeEditor /></ProtectedRoute>} />
             <Route path="/pages/stay" element={<ProtectedRoute><StayEditor /></ProtectedRoute>} />
             <Route path="/pages/faqs" element={<ProtectedRoute><FaqsEditor /></ProtectedRoute>} />
+            <Route path="/pages/booking" element={<ProtectedRoute><BookingPageEditor /></ProtectedRoute>} />
 
             {/* Operations & Management */}
             <Route path="/content" element={<ProtectedRoute><HomePageEditor /></ProtectedRoute>} />

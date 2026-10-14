@@ -13,6 +13,7 @@ import {
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 function RealmHeaderControls({ label, hint, data, setData, onSave, saving }) {
@@ -70,6 +71,9 @@ function RealmHeaderControls({ label, hint, data, setData, onSave, saving }) {
         placeholder="https://res.cloudinary.com/... or upload image"
         helperText="Hero photo shown behind the title on this page (auto-compressed to WebP)"
       />
+      <Box sx={{ mt: 3 }}>
+        <HeroImageListField value={data.heroImages} onChange={val => setData(prev => ({ ...prev, heroImages: val }))} fallbackValue={data.heroBanner} />
+      </Box>
     </Box>
   );
 }
@@ -233,6 +237,9 @@ export default function WildlifeEditor() {
             placeholder="https://res.cloudinary.com/... or upload image"
             helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /wildlife hero banner"
           />
+          <Box sx={{ mt: 3 }}>
+            <HeroImageListField value={fauna.heroImages} onChange={val => setFauna(prev => ({ ...prev, heroImages: val }))} fallbackValue={fauna.heroBanner} />
+          </Box>
         </Paper>
 
         {/* Realm Navigation Tabs */}

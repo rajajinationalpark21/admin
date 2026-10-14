@@ -46,13 +46,15 @@ const NAV_SECTIONS = [
     group: "WEBSITE PAGES",
     items: [
       { label: "1. Home (About)", icon: Home, path: "/pages/home" },
-      { label: "2. Safari Zones", icon: Navigation, path: "/pages/zones" },
+      { label: "2. About Rajaji", icon: Trees, path: "/pages/about" },
+      { label: "3. Safari Zones", icon: Navigation, path: "/pages/zones" },
       { label: "3. Tickets & Tariffs", icon: Ticket, path: "/pages/tickets" },
       { label: "4. Terms & Rules", icon: ShieldCheck, path: "/pages/terms" },
       { label: "5. Activities & Rafting", icon: Waves, path: "/pages/activities" },
       { label: "6. Wildlife & Nature", icon: Trees, path: "/pages/wildlife" },
       { label: "7. Stay in Rajaji", icon: Building2, path: "/pages/stay" },
       { label: "8. FAQ Page", icon: HelpCircle, path: "/pages/faqs" },
+      { label: "9. Booking Page", icon: CalendarCheck, path: "/pages/booking" },
     ],
   },
   {

@@ -14,6 +14,7 @@ import {
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function SafariZonesEditor() {
@@ -21,6 +22,7 @@ export default function SafariZonesEditor() {
     title: "",
     subtitle: "",
     heroBanner: "",
+    heroImages: [],
     zones: [],
     vehicles: [],
   });
@@ -157,6 +159,7 @@ export default function SafariZonesEditor() {
             placeholder="https://res.cloudinary.com/..."
             helperText="Upload local photo (auto-compressed to WebP) or paste Cloudinary URL for the /zones header banner"
           />
+          <Box sx={{ mt: 3 }}><HeroImageListField value={data.heroImages} onChange={val => setData(prev => ({ ...prev, heroImages: val }))} fallbackValue={data.heroBanner} /></Box>
         </Paper>
 
         {/* Top Zone Selection Tabs */}
@@ -258,6 +261,9 @@ export default function SafariZonesEditor() {
                 placeholder="https://res.cloudinary.com/..."
                 helperText="Upload local zone photo or paste Cloudinary URL"
               />
+              <Box sx={{ mt: 3 }}>
+                <HeroImageListField value={currentZone.heroImages} onChange={val => updateCurrentZone("heroImages", val)} fallbackValue={currentZone.heroImage} />
+              </Box>
             </Box>
 
             {/* Gate, Price & Specs */}

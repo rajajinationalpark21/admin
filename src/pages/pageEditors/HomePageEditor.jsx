@@ -2,6 +2,7 @@ import { Box, Typography, Button, Paper, TextField, CircularProgress } from "@mu
 import { Save, Layers, Sparkles, Camera } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function HomePageEditor() {
@@ -15,7 +16,11 @@ export default function HomePageEditor() {
     rules: "",
     aboutTitle: "",
     aboutDescription: "",
+    aboutIntro: "",
+    aboutDetails: [],
+    aboutStats: [],
     aboutImage: "",
+    aboutImages: [],
     aboutBadge: "EST. 1983",
     stats: { tigers: "50+", sqKm: "820+", acres: "820+", forestArea: "820+" },
     galleryTitle: "Captured Moments",
@@ -101,6 +106,9 @@ export default function HomePageEditor() {
               placeholder="https://res.cloudinary.com/..."
               helperText="Upload local photo (auto-compressed to WebP & normalized) or paste Cloudinary URL"
             />
+            <Box sx={{ mt: 3 }}>
+              <HeroImageListField value={data.heroImages} onChange={val => setField("heroImages", val)} fallbackValue={data.heroBanner} />
+            </Box>
           </Box>
         </Paper>
 
@@ -171,6 +179,10 @@ export default function HomePageEditor() {
           </Box>
 
           <Box sx={{ mb: 2.5 }}>
+            <HeroImageListField label="About page header images" value={data.aboutImages} onChange={val => setField("aboutImages", val)} fallbackValue={data.aboutImage} />
+          </Box>
+
+          <Box sx={{ mb: 2.5 }}>
             <TextField
               fullWidth
               size="small"
@@ -180,6 +192,14 @@ export default function HomePageEditor() {
               placeholder="EST. 1983"
               helperText="Floating badge displayed on the corner of the About section image"
             />
+          </Box>
+
+          <Box sx={{ mb: 2.5 }}>
+            <TextField fullWidth multiline rows={4} size="small" label="About introduction (shown before Read the full story)" value={data.aboutIntro || ""} onChange={e => setField("aboutIntro", e.target.value)} />
+          </Box>
+
+          <Box sx={{ mb: 2.5 }}>
+            <TextField fullWidth multiline rows={8} size="small" label="About detail paragraphs" value={(data.aboutDetails || []).join("\n\n")} onChange={e => setField("aboutDetails", e.target.value.split(/\n\s*\n/).map(item => item.trim()).filter(Boolean))} helperText="Separate paragraphs with one blank line. These are hidden until the visitor selects Read the full story." />
           </Box>
 
           <Box sx={{ mb: 2.5 }}>

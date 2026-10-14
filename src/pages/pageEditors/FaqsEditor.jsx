@@ -10,6 +10,7 @@ import {
 import { Save, Plus, Trash2, HelpCircle } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 export default function FaqsEditor() {
@@ -81,6 +82,9 @@ export default function FaqsEditor() {
             onChange={val => setField("heroBanner", val)}
             helperText="Displayed at the top of the /faq page."
           />
+          <Box sx={{ mt: 3 }}>
+            <HeroImageListField value={data.heroImages} onChange={val => setField("heroImages", val)} fallbackValue={data.heroBanner} />
+          </Box>
         </Paper>
 
         {/* Header & Overview Card */}
