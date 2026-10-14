@@ -231,11 +231,19 @@ export default function WildlifeEditor() {
           </Box>
 
           <ImageUploadField
-            label="Wildlife Overview Header Banner Image"
+            label="Wildlife & Biodiversity Main Page Header Image"
+            value={fauna.hubHeroBanner || ""}
+            onChange={val => setFauna(prev => ({ ...prev, hubHeroBanner: val }))}
+            placeholder="https://res.cloudinary.com/... or upload image"
+            helperText="Header for the /wildlife main page. Leave empty to reuse the Mammals header below."
+          />
+          <Box sx={{ mt: 3 }} />
+          <ImageUploadField
+            label="Mammals Page Header Banner Image"
             value={fauna.heroBanner || ""}
             onChange={val => setFauna(prev => ({ ...prev, heroBanner: val }))}
             placeholder="https://res.cloudinary.com/... or upload image"
-            helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the /wildlife hero banner"
+            helperText="Upload local photo (auto-compressed to WebP) or paste image URL for the Mammals page hero banner"
           />
           <Box sx={{ mt: 3 }}>
             <HeroImageListField value={fauna.heroImages} onChange={val => setFauna(prev => ({ ...prev, heroImages: val }))} fallbackValue={fauna.heroBanner} />
