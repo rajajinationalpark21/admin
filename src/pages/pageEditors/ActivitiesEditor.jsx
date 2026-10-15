@@ -123,9 +123,9 @@ export default function ActivitiesEditor() {
           <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
               <Box>
-                <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>4 Official Park Activities</Typography>
+                <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>3 Official Park Activities</Typography>
                 <Typography sx={{ fontSize: "0.8rem", color: "text.secondary" }}>
-                  Jeep Safari, Bird Watching, Stay in Rajaji, and River Rafting.
+                  Jeep Safari, Stay in Rajaji and River Rafting.
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", gap: 1 }}>

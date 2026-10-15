@@ -14,6 +14,7 @@ import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
 import HeroImageListField from "../../components/common/HeroImageListField";
+import GalleryListField from "../../components/common/GalleryListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
 function RealmHeaderControls({ label, hint, data, setData, onSave, saving }) {
@@ -360,6 +361,14 @@ export default function WildlifeEditor() {
                 </Box>
               ))}
             </Box>
+
+            <GalleryListField
+              title={reptiles.galleryTitle}
+              onTitleChange={(val) => setReptiles(prev => ({ ...prev, galleryTitle: val }))}
+              titlePlaceholder="Reptiles of Rajaji – Photo Gallery"
+              value={reptiles.galleryImages}
+              onChange={(val) => setReptiles(prev => ({ ...prev, galleryImages: val }))}
+            />
           </Paper>
         )}
 
@@ -449,6 +458,11 @@ export default function WildlifeEditor() {
                 </Box>
               ))}
             </Box>
+
+            <GalleryListField
+              value={birds.galleryImages}
+              onChange={(val) => setBirds(prev => ({ ...prev, galleryImages: val }))}
+            />
           </Paper>
         )}
 
@@ -556,6 +570,14 @@ export default function WildlifeEditor() {
                 </Box>
               ))}
             </Box>
+
+            <GalleryListField
+              title={fauna.galleryTitle}
+              onTitleChange={(val) => setFauna(prev => ({ ...prev, galleryTitle: val }))}
+              titlePlaceholder="Mammals of Rajaji – Photo Gallery"
+              value={fauna.galleryImages}
+              onChange={(val) => setFauna(prev => ({ ...prev, galleryImages: val }))}
+            />
           </Paper>
         )}
 
@@ -613,6 +635,14 @@ export default function WildlifeEditor() {
                 </Box>
               ))}
             </Box>
+
+            <GalleryListField
+              title={flora.galleryTitle}
+              onTitleChange={(val) => setFlora(prev => ({ ...prev, galleryTitle: val }))}
+              titlePlaceholder="Flora of Rajaji – Photo Gallery"
+              value={flora.galleryImages}
+              onChange={(val) => setFlora(prev => ({ ...prev, galleryImages: val }))}
+            />
           </Paper>
         )}
 
@@ -678,6 +708,14 @@ export default function WildlifeEditor() {
                 </Box>
               ))}
             </Box>
+
+            <GalleryListField
+              title={butterflies.galleryTitle}
+              onTitleChange={(val) => setButterflies(prev => ({ ...prev, galleryTitle: val }))}
+              titlePlaceholder="Butterflies of Rajaji – Photo Gallery"
+              value={butterflies.galleryImages}
+              onChange={(val) => setButterflies(prev => ({ ...prev, galleryImages: val }))}
+            />
           </Paper>
         )}
 
