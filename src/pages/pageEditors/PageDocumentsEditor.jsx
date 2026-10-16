@@ -74,6 +74,15 @@ function PageEditor({ page }) {
           {keys.heroBanner && (
             <ImageUploadField label="Main header photo (shared previews and fallback)" value={value("heroBanner") || ""} onChange={(next) => set("heroBanner", next)} />
           )}
+          {(page.images || []).map((image) => (
+            <Box key={image.key} sx={{ display: "grid", gap: 1.5 }}>
+              <ImageUploadField label={image.label} value={target[image.key] || ""} onChange={(next) => setTarget({ ...target, [image.key]: next })} />
+              {image.altKey && (
+                <TextField size="small" fullWidth label="Description of this image (alt text)" value={target[image.altKey] || ""}
+                  onChange={(e) => setTarget({ ...target, [image.altKey]: e.target.value })} />
+              )}
+            </Box>
+          ))}
         </Paper>
       )}
 

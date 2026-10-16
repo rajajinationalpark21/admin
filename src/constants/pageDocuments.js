@@ -30,7 +30,10 @@ export const PAGE_DOCUMENTS = [
   { id: "butterflies", group: "Wildlife", label: "Butterflies of Rajaji", section: "butterflies" },
   { id: "reptiles", group: "Wildlife", label: "Reptiles of Rajaji", section: "reptiles" },
   { id: "flora", group: "Wildlife", label: "Flora of Rajaji", section: "flora" },
-  { id: "howToReach", group: "Visitor information", label: "How to Reach", section: "howToReach" },
+  {
+    id: "howToReach", group: "Visitor information", label: "How to Reach", section: "howToReach",
+    images: [{ key: "mapImage", altKey: "mapImageAlt", label: "Route map (shown above the directions)" }],
+  },
   { id: "booking", group: "Visitor information", label: "Book Now", section: "booking", fields: { title: "heroTitle", subtitle: "heroSubtitle" } },
   { id: "faqs", group: "Visitor information", label: "FAQ", section: "faqs" },
 ];
