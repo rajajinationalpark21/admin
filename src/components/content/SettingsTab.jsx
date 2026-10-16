@@ -1,6 +1,8 @@
 import { Box, CircularProgress } from "@mui/material";
 import { SectionShell, Field, FieldGrid } from "./SectionShell";
 import useSectionContent from "./useSectionContent";
+import NavigationEditor from "./NavigationEditor";
+import { linesToText } from "./listHelpers";
 
 export default function SettingsTab() {
   const { data, setData, loading, saving, save } = useSectionContent("settings", {
@@ -63,6 +65,26 @@ export default function SettingsTab() {
         <Field label="Copyright Text" value={data.footer?.copyright} onChange={e => setNested("footer", "copyright", e.target.value)} />
         <Field label="Developed By" value={data.footer?.developedBy} onChange={e => setNested("footer", "developedBy", e.target.value)} />
       </FieldGrid>
+
+      <Box sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.secondary", mb: 1, mt: 2 }}>Booking Call-to-Action Wording</Box>
+      <Field label="Band Title" value={data.ctaCopy?.title} onChange={e => setNested("ctaCopy", "title", e.target.value)} />
+      <Field label="Band Text" value={data.ctaCopy?.subtitle} onChange={e => setNested("ctaCopy", "subtitle", e.target.value)} multiline rows={2} />
+      <FieldGrid columns={2}>
+        <Field label="Main Button" value={data.ctaCopy?.primaryLabel} onChange={e => setNested("ctaCopy", "primaryLabel", e.target.value)} />
+        <Field label="Second Button" value={data.ctaCopy?.secondaryLabel} onChange={e => setNested("ctaCopy", "secondaryLabel", e.target.value)} />
+      </FieldGrid>
+      <Field label="Badges, one per line" value={linesToText(data.ctaCopy?.badges)} multiline rows={3}
+        onChange={e => setNested("ctaCopy", "badges", e.target.value.split("\n"))} />
+      <Field label="WhatsApp Message" value={data.ctaCopy?.whatsappMessage} onChange={e => setNested("ctaCopy", "whatsappMessage", e.target.value)} />
+      <Field label="Disclaimer Line" value={data.ctaCopy?.disclaimer} onChange={e => setNested("ctaCopy", "disclaimer", e.target.value)} multiline rows={2} />
+      <FieldGrid columns={2}>
+        <Field label="Zone Page Booking Card – Heading" value={data.ctaCopy?.zoneSidebarKicker} onChange={e => setNested("ctaCopy", "zoneSidebarKicker", e.target.value)} />
+        <Field label="Zone Page Booking Card – Text" value={data.ctaCopy?.zoneSidebarText} onChange={e => setNested("ctaCopy", "zoneSidebarText", e.target.value)} />
+      </FieldGrid>
+      <Field label="Zone Page Booking Band – Text" value={data.ctaCopy?.zoneCtaSubtitle} onChange={e => setNested("ctaCopy", "zoneCtaSubtitle", e.target.value)} multiline rows={2} />
+
+      <Box sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.secondary", mb: 1, mt: 2 }}>Website Menu</Box>
+      <NavigationEditor value={data.navigation} onChange={next => set("navigation", next)} />
     </SectionShell>
   );
 }

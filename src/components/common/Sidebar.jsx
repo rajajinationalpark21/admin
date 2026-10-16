@@ -28,6 +28,7 @@ import {
   Trees,
   Building2,
   HelpCircle,
+  Files,
   Waves
 } from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
@@ -55,6 +56,7 @@ const NAV_SECTIONS = [
       { label: "7. Stay in Rajaji", icon: Building2, path: "/pages/stay" },
       { label: "8. FAQ Page", icon: HelpCircle, path: "/pages/faqs" },
       { label: "9. Booking Page", icon: CalendarCheck, path: "/pages/booking" },
+      { label: "10. Page Documents & SEO", icon: Files, path: "/pages/documents" },
     ],
   },
   {

@@ -24,6 +24,7 @@ import WildlifeEditor from "./pages/pageEditors/WildlifeEditor";
 import StayEditor from "./pages/pageEditors/StayEditor";
 import FaqsEditor from "./pages/pageEditors/FaqsEditor";
 import BookingPageEditor from "./pages/pageEditors/BookingPageEditor";
+import PageDocumentsEditor from "./pages/pageEditors/PageDocumentsEditor";
 
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -72,6 +73,7 @@ function AdminShell() {
             <Route path="/pages/stay" element={<ProtectedRoute><StayEditor /></ProtectedRoute>} />
             <Route path="/pages/faqs" element={<ProtectedRoute><FaqsEditor /></ProtectedRoute>} />
             <Route path="/pages/booking" element={<ProtectedRoute><BookingPageEditor /></ProtectedRoute>} />
+            <Route path="/pages/documents" element={<ProtectedRoute><PageDocumentsEditor /></ProtectedRoute>} />
 
             {/* Operations & Management */}
             <Route path="/content" element={<ProtectedRoute><HomePageEditor /></ProtectedRoute>} />
