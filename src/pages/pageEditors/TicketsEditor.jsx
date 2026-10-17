@@ -93,7 +93,7 @@ export default function TicketsEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 2: Tickets, Entry Fees & Safari Charges"
+        title="4. Tickets, Entry Fees & Safari Charges"
         subtitle="Manage official entrance tariffs, Gypsy rates (₹3,500), guide fees, filming fees, and seasonal shift timings"
       />
 

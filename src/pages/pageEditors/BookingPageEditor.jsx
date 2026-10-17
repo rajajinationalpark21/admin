@@ -19,7 +19,7 @@ export default function BookingPageEditor() {
   const setField = (key, value) => setData((current) => ({ ...current, [key]: value }));
 
   return <Box sx={{ minHeight: "100%", pb: 6 }}>
-    <Header title="Booking Page" subtitle="Manage the header shown at the top of the public /booking page." />
+    <Header title="10. Booking Page" subtitle="Manage the header shown at the top of the public /booking page." />
     <Box sx={{ maxWidth: 1000, mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3 }}>
       <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}><CalendarCheck size={18} /><Typography fontWeight={700}>Booking Page Header</Typography></Box>

@@ -14,7 +14,9 @@ import useSectionContent from "../../components/content/useSectionContent";
 import api from "../../api/apiClient";
 import { PAGE_DOCUMENTS, fieldKeys, zonePages } from "../../constants/pageDocuments";
 
-const SITE_URL = (import.meta.env.VITE_SITE_URL || "").replace(/\/+$/, "");
+// The public website, for "View page". Set VITE_SITE_URL in the admin's Vercel
+// project once the main domain is live; until then the current site is used.
+const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://rajajinationalparkdemo.vercel.app").replace(/\/+$/, "");
 const card = { p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" };
 
 function PageEditor({ page }) {
@@ -141,7 +143,7 @@ export default function PageDocumentsEditor() {
 
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
-      <Header title="Page Documents" subtitle="Each page's heading, client document, photo gallery, URL and SEO settings" />
+      <Header title="11. Page Documents & SEO" subtitle="Each page's heading, client document, photo gallery, URL and SEO settings" />
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3 }}>
         <Paper elevation={0} sx={{ ...card, display: "flex", alignItems: "center", gap: 2, flexWrap: "wrap" }}>
           <Typography sx={{ fontWeight: 700 }}>Page</Typography>

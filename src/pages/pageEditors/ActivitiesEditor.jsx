@@ -98,7 +98,7 @@ export default function ActivitiesEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 5: Activities at Rajaji & River Rafting"
+        title="6. Activities at Rajaji & River Rafting"
         subtitle="Manage the 4 primary park activities, preview cards, and Ganges river rafting expedition stretches"
       />
 

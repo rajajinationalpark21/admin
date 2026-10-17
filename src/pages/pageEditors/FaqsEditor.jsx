@@ -53,7 +53,7 @@ export default function FaqsEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 8: Frequently Asked Questions (FAQ)"
+        title="9. Frequently Asked Questions (FAQ)"
         subtitle="Manage the 10 official visitor questions & answers, categories, and guidance blurbs"
       />
 

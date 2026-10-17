@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import Header from "../components/common/Header";
-import { Save, Key, User, Trash2, PlusCircle, Users, Globe } from "lucide-react";
+import { Save, Key, User, Trash2, PlusCircle, Users, Globe, History, Crown } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../api/apiClient";
 import SettingsTab from "../components/content/SettingsTab";
+import ActivityLog from "../components/content/ActivityLog";
 import { ADMIN_USERS_GET, ADMIN_USER_CREATE, ADMIN_USER_DELETE } from "../constants/endpoints";
 import {
   Box,
@@ -48,6 +49,8 @@ export default function Settings() {
 
   // --- User management state ---
   const [users, setUsers] = useState([]);
+  // Only the panel owner may add, remove or promote admins (the server enforces it too).
+  const [canManage, setCanManage] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [createOpen, setCreateOpen] = useState(false);
   const [newUser, setNewUser] = useState({ name: "", email: "", password: "" });
@@ -63,6 +66,7 @@ export default function Settings() {
       const res = await api.get(ADMIN_USERS_GET);
       const list = res.data?.admins || [];
       setUsers(Array.isArray(list) ? list : []);
+      setCanManage(Boolean(res.data?.canManage));
     } catch {
       toast.error("Failed to load admin users");
     } finally {
@@ -101,6 +105,17 @@ export default function Settings() {
       setUsers((prev) => prev.filter((u) => (u._id || u.id) !== userId));
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to delete user");
+    }
+  };
+
+  const handleMakeOwner = async (userId, userName) => {
+    if (!window.confirm(`Make "${userName}" the owner of this panel? You will become a regular admin and can no longer add or remove admins.`)) return;
+    try {
+      const res = await api.patch("admin/transfer-ownership", { userId });
+      toast.success(res.data?.message || "Ownership transferred");
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to transfer ownership");
     }
   };
 
@@ -149,6 +164,7 @@ export default function Settings() {
     { id: "website", label: "Website Details", icon: Globe },
     { id: "profile", label: "Admin Profile", icon: User },
     { id: "password", label: "Security & Password", icon: Key },
+    { id: "activity", label: "Activity Log", icon: History },
   ];
 
   const currentUserId = localStorage.getItem("adminId");
@@ -224,10 +240,12 @@ export default function Settings() {
                     Admin Users
                   </Typography>
                   <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mt: 0.5 }}>
-                    Create and manage admin accounts for the portal.
+                    {canManage
+                      ? "You own this panel: you can add and remove admin accounts."
+                      : "Only the panel owner can add or remove admin accounts."}
                   </Typography>
                 </Box>
-                <Button
+                {canManage && <Button
                   variant="contained"
                   startIcon={<PlusCircle size={16} />}
                   onClick={() => setCreateOpen(true)}
@@ -244,7 +262,7 @@ export default function Settings() {
                   }}
                 >
                   Add User
-                </Button>
+                </Button>}
               </Box>
 
               {loadingUsers ? (
@@ -293,14 +311,19 @@ export default function Settings() {
                               </Typography>
                             </Box>
                           </Box>
-                          {!isSelf && (
-                            <IconButton size="small" onClick={() => handleDeleteUser(uid, u.name)} sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}>
-                              <Trash2 size={15} />
-                            </IconButton>
+                          {canManage && !isSelf && !u.isOwner && (
+                            <Box sx={{ display: "flex" }}>
+                              <IconButton size="small" aria-label="Make owner" onClick={() => handleMakeOwner(uid, u.name)} sx={{ color: "text.secondary" }}>
+                                <Crown size={15} />
+                              </IconButton>
+                              <IconButton size="small" aria-label="Delete user" onClick={() => handleDeleteUser(uid, u.name)} sx={{ color: "text.secondary", "&:hover": { color: "error.main" } }}>
+                                <Trash2 size={15} />
+                              </IconButton>
+                            </Box>
                           )}
                         </Box>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1.5 }}>
-                          <Chip label={u.role || "admin"} size="small" sx={{ fontSize: "0.6875rem", fontWeight: 600, height: 22, backgroundColor: "action.selected", color: "text.primary" }} />
+                          <Chip label={u.isOwner ? "owner" : "admin"} size="small" sx={{ fontSize: "0.6875rem", fontWeight: 600, height: 22, backgroundColor: "action.selected", color: "text.primary" }} />
                           <Typography sx={{ fontSize: "0.75rem", color: "text.secondary" }}>
                             {u.createdAt ? new Date(u.createdAt).toLocaleDateString() : ""}
                           </Typography>
@@ -376,7 +399,7 @@ export default function Settings() {
                             </TableCell>
                             <TableCell sx={{ py: 1.5 }}>
                               <Chip
-                                label={u.role || "admin"}
+                                label={u.isOwner ? "owner" : "admin"}
                                 size="small"
                                 sx={{
                                   fontSize: "0.6875rem",
@@ -393,11 +416,17 @@ export default function Settings() {
                               </Typography>
                             </TableCell>
                             <TableCell align="right" sx={{ py: 1.5 }}>
-                              {isSelf ? (
+                              {isSelf || !canManage || u.isOwner ? (
                                 <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary", fontStyle: "italic" }}>
-                                  Current user
+                                  {isSelf ? "Current user" : u.isOwner ? "Owner" : "—"}
                                 </Typography>
                               ) : (
+                                <>
+                                <Tooltip title="Make owner">
+                                  <IconButton size="small" aria-label="Make owner" onClick={() => handleMakeOwner(uid, u.name)} sx={{ color: "text.secondary" }}>
+                                    <Crown size={15} />
+                                  </IconButton>
+                                </Tooltip>
                                 <Tooltip title="Delete User">
                                   <IconButton
                                     size="small"
@@ -410,6 +439,7 @@ export default function Settings() {
                                     <Trash2 size={15} />
                                   </IconButton>
                                 </Tooltip>
+                                </>
                               )}
                             </TableCell>
                           </TableRow>
@@ -487,6 +517,9 @@ export default function Settings() {
 
           {/* ===== WEBSITE TAB ===== */}
           {activeTab === "website" && <SettingsTab />}
+
+          {/* ===== ACTIVITY LOG TAB ===== */}
+          {activeTab === "activity" && <ActivityLog />}
 
           {/* ===== PROFILE TAB ===== */}
           {activeTab === "profile" && (

@@ -56,7 +56,7 @@ export default function StayEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 7: Stay in Rajaji"
+        title="8. Stay in Rajaji"
         subtitle="Manage British-era Forest Rest Houses (FRHs), Wild Brook Retreat eco-cottages, and booking rules"
       />
 

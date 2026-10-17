@@ -116,7 +116,7 @@ export default function TermsRulesEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 3: Terms & Conditions, Cancellation & Safari Rules"
+        title="5. Terms & Conditions, Cancellation & Safari Rules"
         subtitle="Manage the 8-point official cancellation/refund policy and 18 Do's & Don'ts for visitors"
       />
 

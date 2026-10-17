@@ -100,7 +100,7 @@ export default function SafariZonesEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 4: Jungle Safari & 7 Zones"
+        title="3. Jungle Safari & 7 Zones"
         subtitle="Manage the 7 official safari zones, entry gates, ₹3,500 Gypsy rates, routes, timings, and SEO tags"
       />
 

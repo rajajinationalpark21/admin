@@ -50,7 +50,7 @@ export default function HomePageEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 1: Home & About Rajaji"
+        title="1. Home Page"
         subtitle="Manage hero banner, tagline, timings, sanctuary legacy, statistics, and Captured Moments photos"
       />
 

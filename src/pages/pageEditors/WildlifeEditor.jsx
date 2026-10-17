@@ -179,7 +179,7 @@ export default function WildlifeEditor() {
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
-        title="Page 6: Wildlife & Biodiversity"
+        title="7. Wildlife & Biodiversity"
         subtitle="Manage the 5 biodiversity realms: Reptiles, Birds, Mammals, Flora, and Butterflies"
       />
 
