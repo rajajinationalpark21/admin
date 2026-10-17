@@ -13,7 +13,7 @@ const ZONE_FIELDS = { title: "name", subtitle: "tag", heroBanner: "heroImage" };
 
 export const PAGE_DOCUMENTS = [
   { id: "home", group: "Home", label: "Home page", section: "home", fields: HOME_FIELDS, path: "/" },
-  { id: "about", group: "Home", label: "About Rajaji (Home page document)", section: "about", path: "/about" },
+  { id: "about", group: "Home", label: "About Rajaji (About page document)", section: "about", path: "/about" },
   { id: "tickets", group: "Tickets", label: "Tickets, Entry Fees & Safari Charges", section: "tickets" },
   { id: "terms", group: "Tickets", label: "Terms & Conditions", section: "parkRules" },
   { id: "zones", group: "Safari Zones", label: "Safari Zones overview", section: "safari", fields: { docTitle: null, docBlocks: null } },
