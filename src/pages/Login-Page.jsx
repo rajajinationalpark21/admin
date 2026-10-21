@@ -1,8 +1,29 @@
 import { useState } from "react";
-import { Box, Typography, TextField, Button, InputAdornment, IconButton, Alert } from "@mui/material";
+import { Box, Typography, TextField, Button, InputAdornment, IconButton, Alert, CircularProgress } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, MapPin } from "lucide-react";
 import api from "../api/apiClient";
+
+// Colours taken from the Rajaji National Park logo.
+const FOREST = "#1f4a2c";
+const FOREST_DARK = "#163a22";
+const OLIVE = "#7d8a3c";
+const PAPER = "#f7f5ed";
+const NIGHT = "#07120a";
+const SERIF = '"Playfair Display", Georgia, serif';
+
+const fieldSx = (dark) => ({
+  "& .MuiOutlinedInput-input": { py: "14px", fontSize: "0.95rem" },
+  "& .MuiOutlinedInput-root": {
+    borderRadius: "14px",
+    fontSize: "0.95rem",
+    bgcolor: dark ? "rgba(255,255,255,0.04)" : "#fffefa",
+    "& fieldset": { borderColor: dark ? "rgba(167,243,208,0.18)" : "rgba(31,74,44,0.22)" },
+    "&:hover fieldset": { borderColor: dark ? "rgba(167,243,208,0.4)" : "rgba(31,74,44,0.45)" },
+    "&.Mui-focused fieldset": { borderColor: dark ? "#6ee7b7" : FOREST, borderWidth: "1.5px" },
+  },
+  "& .MuiInputLabel-root.Mui-focused": { color: dark ? "#6ee7b7" : FOREST },
+});
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -70,121 +91,167 @@ export default function LoginPage() {
     }
   };
 
+  const sessionExpired = window.location.search.includes("session=expired") && !authError;
+
   return (
     <Box
-      sx={{
-        display: "flex",
-        flexDirection: { xs: "column", md: "row" },
-        height: "100dvh",
-        maxHeight: "100dvh",
-        overflow: "hidden",
-        bgcolor: "background.paper",
-        color: "text.primary",
-        "& p": { mb: 0 },
+      sx={(theme) => {
+        const dark = theme.palette.mode === "dark";
+        return {
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          minHeight: "100dvh",
+          bgcolor: dark ? NIGHT : PAPER,
+          color: dark ? "#ecfdf5" : "#14231a",
+          "& p": { mb: 0 },
+        };
       }}
     >
-      {/* Left Column: Clean SaaS Form (Vartaman AI Pattern) */}
+      {/* Photo: the Gohri zone riverbed with a safari jeep */}
+      <Box
+        sx={{
+          position: "relative",
+          flex: { md: "1 1 55%" },
+          order: { xs: 0, md: 1 },
+          height: { xs: 200, sm: 260, md: "auto" },
+          minHeight: { md: "100dvh" },
+          overflow: "hidden",
+          bgcolor: "#5f6b4f",
+        }}
+      >
+        <Box
+          component="img"
+          src="/login-jungle.jpg"
+          alt="A safari jeep crossing the riverbed in the Gohri zone, Rajaji National Park"
+          sx={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 55%" }}
+        />
+        <Box
+          aria-hidden="true"
+          sx={{
+            position: "absolute",
+            inset: 0,
+            background: {
+              xs: "linear-gradient(180deg, rgba(7,18,10,0.05) 40%, rgba(7,18,10,0.55) 100%)",
+              md: "linear-gradient(180deg, rgba(7,18,10,0) 45%, rgba(7,18,10,0.78) 100%)",
+            },
+          }}
+        />
+        <Box sx={{ position: "absolute", left: { xs: 20, md: 48 }, right: { xs: 20, md: 48 }, bottom: { xs: 16, md: 44 }, color: "#fff" }}>
+          <Typography
+            sx={{
+              display: { xs: "none", md: "block" },
+              fontFamily: SERIF,
+              fontWeight: 700,
+              fontSize: { md: "2rem", lg: "2.4rem" },
+              lineHeight: 1.15,
+              maxWidth: 520,
+              textWrap: "balance",
+              mb: 1.5,
+            }}
+          >
+            Forests, rivers and wildlife of the Shiwalik foothills.
+          </Typography>
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.75, fontSize: { xs: "0.75rem", md: "0.85rem" }, opacity: 0.92 }}>
+            <MapPin size={15} />
+            <span>Gohri Zone · Rajaji Tiger Reserve, Uttarakhand</span>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* Sign-in panel */}
       <Box
         component="form"
         onSubmit={handleSubmit}
-        sx={{
-          flex: { xs: "1", md: "1", lg: "0.58" },
+        noValidate
+        sx={(theme) => ({
+          position: "relative",
+          flex: { xs: "1 1 auto", md: "1 1 45%" },
+          order: { xs: 1, md: 0 },
           display: "flex",
           flexDirection: "column",
-          minHeight: 0,
-          overflow: "auto",
-          p: { xs: 2.5, sm: 4, md: 5, lg: 6 },
-        }}
+          overflow: "hidden",
+          px: { xs: 2, sm: 5, lg: 8 },
+          pt: { xs: 3, md: 5 },
+          pb: { xs: 3, md: 4 },
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            backgroundImage: theme.palette.mode === "dark" ? "url('/login-leaves-dark.jpg')" : "url('/login-leaves.jpg')",
+            backgroundSize: "420px auto",
+            backgroundRepeat: "repeat",
+            opacity: theme.palette.mode === "dark" ? 0.1 : 0.07,
+            pointerEvents: "none",
+          },
+        })}
       >
-        {/* Brand Header */}
-        <Box
-          sx={{
-            mb: { xs: 2, md: 3 },
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            flexShrink: 0,
-          }}
-        >
-          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 1.5 }}>
-            <img
-              src="/logo.png"
-              alt="Rajaji Reserve Logo"
-              style={{
-                height: "46px",
-                width: "auto",
-                maxWidth: "100%",
-                objectFit: "contain",
+        <Box sx={{ position: "relative", width: "100%", maxWidth: 400, mx: "auto", my: "auto", display: "flex", flexDirection: "column", gap: 2.5 }}>
+          {/* Logo: its white background disappears on paper (multiply); on dark it sits on a cream plaque */}
+          <Box
+            sx={(theme) => ({
+              alignSelf: "flex-start",
+              ...(theme.palette.mode === "dark" && { bgcolor: PAPER, borderRadius: "16px", px: 1.5, py: 1 }),
+            })}
+          >
+            <Box
+              component="img"
+              src="/logo-full.png"
+              alt="Rajaji National Park"
+              sx={(theme) => ({
                 display: "block",
-              }}
+                height: { xs: 60, sm: 68 },
+                width: "auto",
+                mixBlendMode: theme.palette.mode === "dark" ? "normal" : "multiply",
+              })}
             />
-            <Typography
-              sx={{
-                fontWeight: 800,
-                fontSize: "1.1rem",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                display: { xs: "none", sm: "block" },
-              }}
-            >
-              Rajaji Reserve
-            </Typography>
           </Box>
-        </Box>
 
-        {/* Center Card Content */}
-        <Box
-          sx={{
-            maxWidth: "440px",
-            width: "100%",
-            mx: "auto",
-            my: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: { xs: 2, sm: 2.5 },
-            minHeight: 0,
-          }}
-        >
-          <Box sx={{ textAlign: "center" }}>
+          <Box sx={{ mt: 1 }}>
             <Typography
-              variant="h5"
-              sx={{
+              sx={(theme) => ({
+                fontSize: "0.72rem",
                 fontWeight: 700,
-                letterSpacing: "-0.02em",
-                color: "text.primary",
-              }}
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: theme.palette.mode === "dark" ? "#a3b86c" : OLIVE,
+                mb: 0.75,
+              })}
             >
-              Sign in to Portal Console
+              Admin panel
             </Typography>
             <Typography
-              variant="body2"
-              sx={{
-                color: "text.secondary",
-                mt: 0.5,
-              }}
+              component="h1"
+              sx={(theme) => ({
+                fontFamily: SERIF,
+                fontWeight: 700,
+                fontSize: { xs: "1.75rem", sm: "2rem" },
+                lineHeight: 1.2,
+                color: theme.palette.mode === "dark" ? "#ecfdf5" : FOREST_DARK,
+              })}
             >
-              Manage wildlife operations, bookings, inquiries & media
+              Welcome back
+            </Typography>
+            <Typography sx={(theme) => ({ mt: 1, fontSize: "0.92rem", lineHeight: 1.6, color: theme.palette.mode === "dark" ? "rgba(236,253,245,0.7)" : "#4b5a4f" })}>
+              Sign in to manage the website's pages, bookings, enquiries and photos.
             </Typography>
           </Box>
 
-          {window.location.search.includes("session=expired") && !authError && (
-            <Alert severity="info" sx={{ borderRadius: "12px", py: 0.5 }}>
-              Your session was refreshed. Please click Sign in to connect to the live backend.
+          {sessionExpired && (
+            <Alert severity="info" sx={{ borderRadius: "12px", py: 0.25 }}>
+              Your session has ended. Please sign in again.
             </Alert>
           )}
 
           {authError && (
-            <Alert severity="error" sx={{ borderRadius: "12px", py: 0.5 }}>
+            <Alert severity="error" sx={{ borderRadius: "12px", py: 0.25 }}>
               {authError}
             </Alert>
           )}
 
-          {/* Email Field with Pill Border */}
           <TextField
             type="email"
-            variant="outlined"
-            label="Your email"
+            label="Email"
+            autoComplete="username"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
@@ -193,18 +260,22 @@ export default function LoginPage() {
             error={!!emailError}
             helperText={emailError}
             fullWidth
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "32px",
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Mail size={17} />
+                  </InputAdornment>
+                ),
               },
             }}
+            sx={(theme) => fieldSx(theme.palette.mode === "dark")}
           />
 
-          {/* Password Field with Pill Border */}
           <TextField
             type={showPassword ? "text" : "password"}
-            variant="outlined"
-            label="Enter Password"
+            label="Password"
+            autoComplete="current-password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
@@ -213,148 +284,76 @@ export default function LoginPage() {
             error={!!passwordError}
             helperText={passwordError}
             fullWidth
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    size="small"
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                    sx={{ color: "text.secondary" }}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                borderRadius: "32px",
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock size={17} />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      sx={{ color: "text.secondary" }}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               },
             }}
+            sx={(theme) => fieldSx(theme.palette.mode === "dark")}
           />
 
-          {/* Pill Sign In Button (Exact Vartaman Pattern) */}
           <Button
             type="submit"
             disabled={!email || !password || !!emailError || !!passwordError || loading}
-            sx={{
-              background: (theme) => theme.palette.mode === "dark" ? "#FFFFFF" : "#000000",
-              borderRadius: "24px",
-              color: (theme) => theme.palette.mode === "dark" ? "#000000" : "#FFFFFF",
-              paddingX: "24px",
-              paddingY: "11px",
-              textTransform: "none",
-              fontWeight: 600,
-              fontSize: "0.9375rem",
-              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-              boxShadow: "0 4px 14px 0 rgba(0,0,0,0.1)",
-              "&:hover": {
-                background: (theme) => theme.palette.mode === "dark" ? "#E5E7EB" : "#27272A",
-                transform: "translateY(-1px) scale(1.01)",
-                boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
-              },
-              "&:active": {
-                transform: "scale(0.98)",
-              },
-              "&.Mui-disabled": {
-                background: (theme) => theme.palette.mode === "dark" ? "#27272A" : "#E4E4E7",
-                color: (theme) => theme.palette.mode === "dark" ? "#71717A" : "#A1A1AA",
-              },
+            startIcon={loading ? <CircularProgress size={16} sx={{ color: "inherit" }} /> : null}
+            sx={(theme) => ({
+              mt: 0.5,
               width: "100%",
-            }}
+              py: 1.4,
+              borderRadius: "14px",
+              bgcolor: theme.palette.mode === "dark" ? "#34d399" : FOREST,
+              color: theme.palette.mode === "dark" ? NIGHT : "#fff",
+              textTransform: "none",
+              fontWeight: 700,
+              fontSize: "0.95rem",
+              boxShadow: "0 8px 20px -10px rgba(31,74,44,0.7)",
+              transition: "background-color 0.2s ease, transform 0.15s ease",
+              "&:hover": { bgcolor: theme.palette.mode === "dark" ? "#6ee7b7" : FOREST_DARK },
+              "&:active": { transform: "scale(0.98)" },
+              "&:focus-visible": { outline: `3px solid ${theme.palette.mode === "dark" ? "#6ee7b7" : OLIVE}`, outlineOffset: 2 },
+              "&.Mui-disabled": {
+                bgcolor: theme.palette.mode === "dark" ? "rgba(255,255,255,0.08)" : "rgba(31,74,44,0.14)",
+                color: theme.palette.mode === "dark" ? "rgba(236,253,245,0.4)" : "rgba(20,35,26,0.45)",
+                boxShadow: "none",
+              },
+            })}
           >
             {loading ? "Signing in..." : "Sign in"}
           </Button>
 
-          {/* Need Account */}
-          <Typography sx={{ textAlign: "center", color: "text.primary", mt: 1 }}>
-            <span style={{ opacity: 0.7, fontSize: "14px", fontWeight: 500 }}>
-              Need administrative access?{" "}
-            </span>
-            <span
-              style={{
-                textDecoration: "underline",
-                fontWeight: 600,
-                fontSize: "14px",
-                cursor: "pointer",
-              }}
-              onClick={() => alert("Please contact Super Administrator to provision new admin credentials.")}
-            >
-              Contact Administration
-            </span>
+          <Typography sx={(theme) => ({ fontSize: "0.84rem", lineHeight: 1.55, color: theme.palette.mode === "dark" ? "rgba(236,253,245,0.6)" : "#5b685f" })}>
+            No account yet? The panel owner adds new admins from Settings → Manage Users.
           </Typography>
         </Box>
 
-        {/* Footer Legal Terms */}
         <Typography
-          sx={{
+          sx={(theme) => ({
+            position: "relative",
             textAlign: "center",
-            mt: "auto",
-            pt: { xs: 2, md: 3 },
-            color: "text.secondary",
-            fontSize: "13px",
-            flexShrink: 0,
-          }}
+            pt: 4,
+            fontSize: "0.75rem",
+            color: theme.palette.mode === "dark" ? "rgba(236,253,245,0.45)" : "#7a857d",
+          })}
         >
-          By proceeding you agree to the
-          <span style={{ textDecoration: "underline", margin: "0 4px", cursor: "pointer" }}>
-            Terms & Conditions
-          </span>
-          and
-          <span style={{ textDecoration: "underline", marginLeft: "4px", cursor: "pointer" }}>
-            Privacy Policy
-          </span>
+          Rajaji National Park · Safari booking assistance
         </Typography>
-      </Box>
-
-      {/* Right Column: Full-Height Illustration (Vartaman AI Pattern) */}
-      <Box
-        sx={{
-          flex: { xs: "1", md: "0.6", lg: "0.62" },
-          display: { xs: "none", md: "flex" },
-          position: "relative",
-          bgcolor: "background.default",
-          overflow: "hidden",
-        }}
-      >
-        <img
-          src="/login-illustration.png"
-          alt="Rajaji Reserve Login Visual"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition: "center",
-            display: "block",
-          }}
-          onError={(e) => {
-            // If illustration not found, fallback to clean gradient visual
-            e.currentTarget.style.display = "none";
-          }}
-        />
-        {/* Subtle Brand Watermark overlay on right visual */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 32,
-            right: 32,
-            px: 2.5,
-            py: 1.5,
-            borderRadius: "14px",
-            bgcolor: "rgba(0, 0, 0, 0.55)",
-            backdropFilter: "blur(12px)",
-            color: "#FFFFFF",
-            border: "1px solid rgba(255, 255, 255, 0.15)",
-          }}
-        >
-          <Typography sx={{ fontSize: "12px", fontWeight: 700, letterSpacing: "0.04em", textTransform: "uppercase" }}>
-            Rajaji National Park
-          </Typography>
-          <Typography sx={{ fontSize: "11px", opacity: 0.75 }}>
-            Uttarakhand Wildlife & Tiger Conservation Division
-          </Typography>
-        </Box>
       </Box>
     </Box>
   );
