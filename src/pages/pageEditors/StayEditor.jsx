@@ -12,6 +12,11 @@ import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
 import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
+import CtaBandFields from "../../components/content/CtaBandFields";
+import StringListField from "../../components/content/StringListField";
+
+// Shown when a column heading has never been saved, matching the site.
+const DEFAULT_FRH_COLUMNS = ["Forest Rest House", "Suites Available", "Current Status", "Entry Gate Access", "Setting & Atmosphere"];
 
 export default function StayEditor() {
   const { data, setData, loading, saving, save } = useSectionContent("stay", {
@@ -33,6 +38,10 @@ export default function StayEditor() {
   }
 
   const setField = (key, val) => setData(prev => ({ ...prev, [key]: val }));
+  const setWildBrook = (key, val) => setField("wildBrook", { ...(data.wildBrook || {}), [key]: val });
+  const setBooking = (key, val) => setField("frhBookingInfo", { ...(data.frhBookingInfo || {}), [key]: val });
+  const frhColumns = DEFAULT_FRH_COLUMNS.map((fallback, index) => data.frhColumns?.[index] ?? fallback);
+  const setColumn = (index, val) => setField("frhColumns", frhColumns.map((column, i) => (i === index ? val : column)));
 
   // FRH helpers
   const addFRH = () => {
@@ -138,6 +147,20 @@ export default function StayEditor() {
             </Button>
           </Box>
 
+          <Box sx={{ mb: 2.5, p: 2.5, borderRadius: "12px", border: "1px solid", borderColor: "divider", display: "grid", gap: 2 }}>
+            <Typography sx={{ fontSize: "0.95rem", fontWeight: 700 }}>Section heading and table columns</Typography>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+              <TextField size="small" label="Small label above the heading" value={data.frhEyebrow ?? ""} onChange={e => setField("frhEyebrow", e.target.value)} />
+              <TextField size="small" label="Section heading" value={data.frhTitle ?? ""} onChange={e => setField("frhTitle", e.target.value)} />
+            </Box>
+            <TextField size="small" fullWidth multiline minRows={2} label="Text under the heading" value={data.frhIntro ?? ""} onChange={e => setField("frhIntro", e.target.value)} />
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(5, 1fr)" }, gap: 1.5 }}>
+              {frhColumns.map((column, index) => (
+                <TextField key={index} size="small" label={`Column ${index + 1}`} value={column} onChange={e => setColumn(index, e.target.value)} />
+              ))}
+            </Box>
+          </Box>
+
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             {(data.forestRestHouses || []).map((frh, idx) => (
               <Box key={idx} sx={{ p: 2, borderRadius: "12px", border: "1px solid", borderColor: "divider", display: "flex", flexDirection: "column", gap: 1.5 }}>
@@ -185,6 +208,18 @@ export default function StayEditor() {
               </Box>
             ))}
           </Box>
+
+          <Box sx={{ mt: 2.5, p: 2.5, borderRadius: "12px", border: "1px solid", borderColor: "divider", display: "grid", gap: 2 }}>
+            <Typography sx={{ fontSize: "0.95rem", fontWeight: 700 }}>How to book Forest Rest Houses (dark box)</Typography>
+            <TextField size="small" fullWidth label="Box heading" value={data.frhBookingInfo?.title ?? ""} onChange={e => setBooking("title", e.target.value)} />
+            <TextField size="small" fullWidth multiline minRows={2} label="Booking rule" value={data.frhBookingInfo?.bookingRule || ""} onChange={e => setBooking("bookingRule", e.target.value)} />
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+              <TextField size="small" label="Authority" value={data.frhBookingInfo?.authority || ""} onChange={e => setBooking("authority", e.target.value)} />
+              <TextField size="small" label="Office phone" value={data.frhBookingInfo?.phone || ""} onChange={e => setBooking("phone", e.target.value)} />
+            </Box>
+            <TextField size="small" fullWidth label="Address" value={data.frhBookingInfo?.address || ""} onChange={e => setBooking("address", e.target.value)} />
+            <TextField size="small" sx={{ minWidth: { sm: 320 } }} label="Button text" helperText="Leave empty to hide the button" value={data.frhBookingInfo?.buttonText ?? ""} onChange={e => setBooking("buttonText", e.target.value)} />
+          </Box>
         </Paper>
 
         {/* Wild Brook Retreat Card */}
@@ -219,6 +254,19 @@ export default function StayEditor() {
               value={data.wildBrook?.distance || ""}
               onChange={e => setField("wildBrook", { ...(data.wildBrook || {}), distance: e.target.value })}
             />
+            <TextField size="small" label="Phone" value={data.wildBrook?.phone || ""} onChange={e => setWildBrook("phone", e.target.value)} />
+            <TextField size="small" label="Email" value={data.wildBrook?.email || ""} onChange={e => setWildBrook("email", e.target.value)} />
+            <TextField size="small" label="Button text" helperText="Leave empty to hide the button" value={data.wildBrook?.buttonText ?? ""} onChange={e => setWildBrook("buttonText", e.target.value)} />
+          </Box>
+
+          <Box sx={{ mb: 2.5 }}>
+            <StringListField
+              label="Features (tick list)"
+              itemLabel="Feature"
+              addLabel="Add feature"
+              value={data.wildBrook?.features}
+              onChange={val => setWildBrook("features", val)}
+            />
           </Box>
 
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -228,6 +276,7 @@ export default function StayEditor() {
               onChange={val => setField("wildBrook", { ...(data.wildBrook || {}), mainImage: val })}
               helperText="Large hero photo of the resort shown on the Stay page."
             />
+            <TextField size="small" fullWidth label="Main photo description (alt text)" value={data.wildBrook?.mainImageAlt ?? ""} onChange={e => setWildBrook("mainImageAlt", e.target.value)} />
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
               <ImageUploadField
                 compact
@@ -243,8 +292,14 @@ export default function StayEditor() {
                 onChange={val => setField("wildBrook", { ...(data.wildBrook || {}), sunsetImage: val })}
                 helperText="Small right thumbnail."
               />
+              <TextField size="small" label="Foliage photo description (alt text)" value={data.wildBrook?.leafImageAlt ?? ""} onChange={e => setWildBrook("leafImageAlt", e.target.value)} />
+              <TextField size="small" label="Sunset photo description (alt text)" value={data.wildBrook?.sunsetImageAlt ?? ""} onChange={e => setWildBrook("sunsetImageAlt", e.target.value)} />
             </Box>
           </Box>
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <CtaBandFields value={data.ctaBand} onChange={val => setField("ctaBand", val)} />
         </Paper>
 
         {/* Sticky Action Footer */}

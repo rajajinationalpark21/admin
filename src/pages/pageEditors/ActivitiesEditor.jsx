@@ -16,6 +16,8 @@ import ImageUploadField from "../../components/common/ImageUploadField";
 import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 import { PageEditor } from "./PageDocumentsEditor";
+import CtaBandFields from "../../components/content/CtaBandFields";
+import StringListField from "../../components/content/StringListField";
 import { PAGE_DOCUMENTS } from "../../constants/pageDocuments";
 
 // Activity pages edited in their own tabs, after the overview and rafting tabs.
@@ -189,7 +191,24 @@ export default function ActivitiesEditor() {
               <Box sx={{ mt: 3 }}>
                 <HeroImageListField value={actData.heroImages} onChange={val => setActData(prev => ({ ...prev, heroImages: val }))} fallbackValue={actData.heroBanner} />
               </Box>
+              <TextField
+                fullWidth
+                size="small"
+                sx={{ mt: 3 }}
+                label="Header photo description (alt text)"
+                value={actData.heroImageAlt || ""}
+                onChange={e => setActData(prev => ({ ...prev, heroImageAlt: e.target.value }))}
+              />
             </Box>
+
+            <TextField
+              size="small"
+              sx={{ mb: 2.5, minWidth: { sm: 320 } }}
+              label="Booking button text on every card"
+              helperText="Leave empty to hide the button on the cards"
+              value={actData.cardButtonText ?? ""}
+              onChange={e => setActData(prev => ({ ...prev, cardButtonText: e.target.value }))}
+            />
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
               {(actData.items || []).map((item, idx) => (
@@ -248,6 +267,10 @@ export default function ActivitiesEditor() {
                 </Box>
               ))}
             </Box>
+
+            <Box sx={{ mt: 3 }}>
+              <CtaBandFields value={actData.ctaBand} onChange={val => setActData(prev => ({ ...prev, ctaBand: val }))} />
+            </Box>
           </Paper>
         )}
 
@@ -294,6 +317,16 @@ export default function ActivitiesEditor() {
               <Box sx={{ mt: 3 }}>
                 <HeroImageListField value={raftData.heroImages} onChange={val => setRaftData(prev => ({ ...prev, heroImages: val }))} fallbackValue={raftData.heroBanner} />
               </Box>
+            </Box>
+
+            <Box sx={{ mb: 3, p: 2.5, borderRadius: "12px", border: "1px solid", borderColor: "divider" }}>
+              <Typography sx={{ fontSize: "0.95rem", fontWeight: 700, mb: 2 }}>Rafting Stretches Section</Typography>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
+                <TextField size="small" label="Small label above the heading" value={raftData.stretchesEyebrow ?? ""} onChange={e => setRaftData(prev => ({ ...prev, stretchesEyebrow: e.target.value }))} />
+                <TextField size="small" label="Section heading" value={raftData.stretchesTitle ?? ""} onChange={e => setRaftData(prev => ({ ...prev, stretchesTitle: e.target.value }))} />
+              </Box>
+              <TextField fullWidth multiline minRows={2} size="small" sx={{ mt: 2 }} label="Text under the heading" value={raftData.stretchesIntro ?? ""} onChange={e => setRaftData(prev => ({ ...prev, stretchesIntro: e.target.value }))} />
+              <TextField size="small" sx={{ mt: 2, minWidth: { sm: 320 } }} label="Booking button text on every stretch" helperText="Leave empty to hide the button" value={raftData.stretchButtonText ?? ""} onChange={e => setRaftData(prev => ({ ...prev, stretchButtonText: e.target.value }))} />
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
@@ -344,9 +377,18 @@ export default function ActivitiesEditor() {
                     multiline
                     rows={2}
                     size="small"
-                    label="Description & Rapids Info"
+                    label="Description"
                     value={run.desc || ""}
                     onChange={e => updateStretch(idx, "desc", e.target.value)}
+                  />
+
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Rapids"
+                    placeholder="Grade II & III (Roller Coaster, Golf Course)"
+                    value={run.rapids || ""}
+                    onChange={e => updateStretch(idx, "rapids", e.target.value)}
                   />
 
                   <ImageUploadField
@@ -358,6 +400,19 @@ export default function ActivitiesEditor() {
                   />
                 </Box>
               ))}
+            </Box>
+
+            <Box sx={{ mt: 3, p: 2.5, borderRadius: "12px", border: "1px solid", borderColor: "divider", display: "grid", gap: 2 }}>
+              <Typography sx={{ fontSize: "0.95rem", fontWeight: 700 }}>Rafting Safety</Typography>
+              <TextField size="small" fullWidth label="Safety box heading" value={raftData.safetyTitle ?? ""} onChange={e => setRaftData(prev => ({ ...prev, safetyTitle: e.target.value }))} />
+              <StringListField
+                label="Safety rules"
+                itemLabel="Rule"
+                addLabel="Add rule"
+                multiline
+                value={raftData.safetyGuidelines}
+                onChange={val => setRaftData(prev => ({ ...prev, safetyGuidelines: val }))}
+              />
             </Box>
           </Paper>
         )}
