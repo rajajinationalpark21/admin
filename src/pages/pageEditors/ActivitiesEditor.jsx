@@ -15,6 +15,11 @@ import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
 import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
+import { PageEditor } from "./PageDocumentsEditor";
+import { PAGE_DOCUMENTS } from "../../constants/pageDocuments";
+
+// Activity pages edited in their own tabs, after the overview and rafting tabs.
+const ACTIVITY_PAGES = ["jeepSafari", "birdWatching", "trekking"].map((id) => PAGE_DOCUMENTS.find((page) => page.id === id));
 
 export default function ActivitiesEditor() {
   const { data: actData, setData: setActData, loading: actLoading, saving: actSaving, save: saveAct } = useSectionContent("activities", {
@@ -99,7 +104,7 @@ export default function ActivitiesEditor() {
     <Box sx={{ minHeight: "100%", pb: 6 }}>
       <Header
         title="6. Activities at Rajaji & River Rafting"
-        subtitle="Manage the 4 primary park activities, preview cards, and Ganges river rafting expedition stretches"
+        subtitle="Manage the Activities page and its cards, the rafting stretches, and the Jeep Safari, Bird Watching and Trekking pages"
       />
 
       <Box sx={{ maxWidth: "1100px", mx: "auto", px: { xs: 2, sm: 3, lg: 4 }, pt: 3, display: "flex", flexDirection: "column", gap: 3.5 }}>
@@ -113,8 +118,11 @@ export default function ActivitiesEditor() {
               "& .MuiTab-root": { textTransform: "none", fontWeight: 600, fontSize: "0.85rem", minHeight: 42 }
             }}
           >
-            <Tab label="1. Activities Overview (4 Activities)" />
+            <Tab label="1. Activities Overview" />
             <Tab label="2. Ganges River Rafting Stretches" />
+            <Tab label="3. Jeep Safari" />
+            <Tab label="4. Bird Watching" />
+            <Tab label="5. Trekking" />
           </Tabs>
         </Paper>
 
@@ -123,9 +131,9 @@ export default function ActivitiesEditor() {
           <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>
               <Box>
-                <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>3 Official Park Activities</Typography>
+                <Typography sx={{ fontSize: "1.05rem", fontWeight: 700 }}>Activity Cards ({(actData.items || []).length})</Typography>
                 <Typography sx={{ fontSize: "0.8rem", color: "text.secondary" }}>
-                  Jeep Safari, Stay in Rajaji and River Rafting.
+                  The cards on the Activities page. Each links to its own page.
                 </Typography>
               </Box>
               <Box sx={{ display: "flex", gap: 1 }}>
@@ -354,7 +362,11 @@ export default function ActivitiesEditor() {
           </Paper>
         )}
 
+        {/* Tabs 2-4: activity pages, each saved with its own "Save page" button */}
+        {activeTab >= 2 && <PageEditor key={ACTIVITY_PAGES[activeTab - 2].id} page={ACTIVITY_PAGES[activeTab - 2]} />}
+
         {/* Sticky Action Footer */}
+        {activeTab < 2 && (
         <Box sx={{ display: "flex", justifyContent: "flex-end", pt: 2, pb: 4 }}>
           <Button
             variant="contained"
@@ -376,6 +388,7 @@ export default function ActivitiesEditor() {
             {isSaving ? "Saving Changes..." : "Save Activities & Rafting"}
           </Button>
         </Box>
+        )}
       </Box>
     </Box>
   );

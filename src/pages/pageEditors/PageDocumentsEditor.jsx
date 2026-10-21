@@ -19,7 +19,8 @@ import { PAGE_DOCUMENTS, fieldKeys, zonePages } from "../../constants/pageDocume
 const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://rajajinationalparkdemo.vercel.app").replace(/\/+$/, "");
 const card = { p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" };
 
-function PageEditor({ page }) {
+/** One page's header, document, gallery and SEO, with its own Save. Also used by the Activities editor. */
+export function PageEditor({ page }) {
   const { data, setData, loading, saving, save } = useSectionContent(page.section, {});
   const [tab, setTab] = useState(0);
   const keys = fieldKeys(page);
