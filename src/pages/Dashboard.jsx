@@ -26,6 +26,10 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import api from "../api/apiClient";
+import WebsiteVisits from "../components/dashboard/WebsiteVisits";
+
+// The time filter, in days of website visits.
+const RANGE_DAYS = { "7 days": 7, "14 days": 14, "31 days": 31, "All time": 365 };
 
 // Vartaman AI style PurchaseCard
 const KpiCard = ({ icon: Icon, title, value, iconBg, iconColor, linkTo }) => {
@@ -247,6 +251,8 @@ export default function Dashboard() {
             linkTo="/blog"
           />
         </Box>
+
+        <WebsiteVisits days={RANGE_DAYS[timeRange] || 31} />
 
         {/* Two Tables Grid: Recent Inquiries & Recent Feedback */}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 1fr" }, gap: 3 }}>

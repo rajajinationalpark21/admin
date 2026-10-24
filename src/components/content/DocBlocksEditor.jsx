@@ -115,7 +115,7 @@ function BlockFields({ block, onChange }) {
       return <TextField {...small} label="Heading" value={block.text || ""} onChange={(e) => set("text", e.target.value)} />;
     case "p":
       return <TextField {...small} multiline minRows={3} label="Text" value={block.text || ""} onChange={(e) => set("text", e.target.value)}
-        helperText="**bold**, [link text](/page-url), new line = line break" />;
+        helperText="Select words, then Ctrl+B for **bold** or Ctrl+I for *italic*. [link text](/page-url) makes a link; a new line is a line break." />;
     case "note": case "fact":
       return (
         <Box sx={{ display: "grid", gap: 1 }}>
@@ -126,7 +126,7 @@ function BlockFields({ block, onChange }) {
     case "ul": case "ol": case "chips":
       return <TextField {...small} multiline minRows={3} label="One item per line" value={linesToText(block.items)}
         onChange={(e) => set("items", e.target.value.split("\n"))} onBlur={(e) => set("items", textToLines(e.target.value))}
-        helperText="**bold** and [link text](/page-url) work inside items" />;
+        helperText="Ctrl+B bold, Ctrl+I italic and [link text](/page-url) work inside items" />;
     case "table":
       return <TableEditor rows={block.rows || [[""]]} onChange={(rows) => set("rows", rows)} />;
     case "links":

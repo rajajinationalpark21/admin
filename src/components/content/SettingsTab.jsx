@@ -8,7 +8,7 @@ export default function SettingsTab() {
   const { data, setData, loading, saving, save } = useSectionContent("settings", {
     siteName: "",
     contact: { name: "", phone: "", email: "", address: "", mapUrl: "" },
-    social: { facebook: "", instagram: "", twitter: "", youtube: "", linkedin: "" },
+    social: { facebook: "", instagram: "", twitter: "", youtube: "", linkedin: "", telegram: "" },
     footer: { copyright: "", developedBy: "" },
   });
 
@@ -44,13 +44,14 @@ export default function SettingsTab() {
       <Field label="Address" value={data.contact?.address} onChange={e => setNested("contact", "address", e.target.value)} multiline rows={2} />
 
       <Box sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.secondary", mb: 1, mt: 2 }}>Social Media Links</Box>
-      <FieldGrid columns={2}>
-        <Field label="Facebook" value={data.social?.facebook} onChange={e => setNested("social", "facebook", e.target.value)} />
+      <FieldGrid columns={3}>
         <Field label="Instagram" value={data.social?.instagram} onChange={e => setNested("social", "instagram", e.target.value)} />
+        <Field label="Facebook" value={data.social?.facebook} onChange={e => setNested("social", "facebook", e.target.value)} />
+        <Field label="Telegram" value={data.social?.telegram} onChange={e => setNested("social", "telegram", e.target.value)} />
       </FieldGrid>
       <FieldGrid columns={3}>
-        <Field label="Twitter" value={data.social?.twitter} onChange={e => setNested("social", "twitter", e.target.value)} />
         <Field label="YouTube" value={data.social?.youtube} onChange={e => setNested("social", "youtube", e.target.value)} />
+        <Field label="Twitter / X" value={data.social?.twitter} onChange={e => setNested("social", "twitter", e.target.value)} />
         <Field label="LinkedIn" value={data.social?.linkedin} onChange={e => setNested("social", "linkedin", e.target.value)} />
       </FieldGrid>
 

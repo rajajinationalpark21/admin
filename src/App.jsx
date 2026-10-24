@@ -29,9 +29,11 @@ import PageDocumentsEditor from "./pages/pageEditors/PageDocumentsEditor";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProtectedRoute from "./components/ProtectedRoute";
+import useTextMarkShortcuts from "./hooks/useTextMarkShortcuts";
 
 function AdminShell() {
   const { theme, themeConfig } = useAdminTheme();
+  useTextMarkShortcuts();
   const muiTheme = useMemo(() => getMuiTheme(theme), [theme]);
   const location = useLocation();
   const hideNav = location.pathname === "/" || location.pathname === "/login";

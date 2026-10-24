@@ -3,6 +3,7 @@ import { ExternalLink } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import NotificationMenu from "./NotificationMenu";
 import { useLocation } from "react-router-dom";
+import { SITE_URL } from "../../constants/site";
 
 const PAGE_TITLES = {
   "/dashboard": "Dashboard Overview",
@@ -79,6 +80,11 @@ export default function Header({ title, subtitle }) {
               {subtitle}
             </Typography>
           )}
+          {location.pathname.startsWith("/pages/") && (
+            <Typography sx={{ fontSize: "0.6875rem", color: "text.secondary", mt: 0.2, opacity: 0.85 }}>
+              Tip: select words and press Ctrl+B for bold or Ctrl+I for italic.
+            </Typography>
+          )}
         </Box>
 
         {/* Right Action Bar */}
@@ -86,7 +92,7 @@ export default function Header({ title, subtitle }) {
           {/* Live Website Link */}
           <Button
             component="a"
-            href="http://localhost:5173"
+            href={SITE_URL}
             target="_blank"
             rel="noopener noreferrer"
             variant="outlined"

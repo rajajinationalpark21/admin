@@ -13,10 +13,8 @@ import SeoFields from "../../components/content/SeoFields";
 import useSectionContent from "../../components/content/useSectionContent";
 import api from "../../api/apiClient";
 import { PAGE_DOCUMENTS, fieldKeys, zonePages } from "../../constants/pageDocuments";
+import { SITE_URL } from "../../constants/site";
 
-// The public website, for "View page". Set VITE_SITE_URL in the admin's Vercel
-// project once the main domain is live; until then the current site is used.
-const SITE_URL = (import.meta.env.VITE_SITE_URL || "https://rajajinationalparkdemo.vercel.app").replace(/\/+$/, "");
 const card = { p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" };
 
 /** One page's header, document, gallery and SEO, with its own Save. Also used by the Activities editor. */
