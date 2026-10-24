@@ -7,7 +7,7 @@ import { linesToText } from "./listHelpers";
 export default function SettingsTab() {
   const { data, setData, loading, saving, save } = useSectionContent("settings", {
     siteName: "",
-    contact: { name: "", phone: "", email: "", address: "", mapUrl: "" },
+    contact: { name: "", phone: "", email: "", address: "", mapUrl: "", mapEmbed: "" },
     social: { facebook: "", instagram: "", twitter: "", youtube: "", linkedin: "", telegram: "" },
     footer: { copyright: "", developedBy: "" },
   });
@@ -42,6 +42,10 @@ export default function SettingsTab() {
         <Field label="Map URL" value={data.contact?.mapUrl} onChange={e => setNested("contact", "mapUrl", e.target.value)} />
       </FieldGrid>
       <Field label="Address" value={data.contact?.address} onChange={e => setNested("contact", "address", e.target.value)} multiline rows={2} />
+      <Field label="Google Maps embed (Contact page map)" value={data.contact?.mapEmbed} onChange={e => setNested("contact", "mapEmbed", e.target.value)} multiline rows={2} />
+      <Box sx={{ fontSize: "0.72rem", color: "text.secondary", mt: -1, mb: 1 }}>
+        In Google Maps, open your place → Share → Embed a map → Copy HTML, and paste it here. Until then the map shows the Map URL's place.
+      </Box>
 
       <Box sx={{ fontSize: "0.8125rem", fontWeight: 600, color: "text.secondary", mb: 1, mt: 2 }}>Social Media Links</Box>
       <FieldGrid columns={3}>

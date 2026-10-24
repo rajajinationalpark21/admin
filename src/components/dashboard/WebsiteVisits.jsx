@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Box, Typography, Tooltip, CircularProgress } from "@mui/material";
-import { Eye, Users, CalendarCheck } from "lucide-react";
+import { Eye, Users, UserPlus, CalendarCheck } from "lucide-react";
 import api from "../../api/apiClient";
 
 // The panel's emerald accent (the same as the dashboard's feedback card), in every theme.
@@ -76,7 +76,7 @@ function DailyChart({ daily }) {
               title={
                 <Box sx={{ fontSize: "0.75rem", lineHeight: 1.5 }}>
                   <b>{dayLabel(d.day, { weekday: "short", day: "numeric", month: "short" })}</b>
-                  <br />{numberFormat.format(d.views)} page views · {numberFormat.format(d.visitors)} visitors
+                  <br />{numberFormat.format(d.views)} page views · {numberFormat.format(d.visitors)} visitors ({numberFormat.format(d.newVisitors || 0)} new)
                   <br />{d.enquiries} {d.enquiries === 1 ? "enquiry" : "enquiries"}
                 </Box>
               }
@@ -161,9 +161,15 @@ export default function WebsiteVisits({ days }) {
 
       {data && (
         <>
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2 }}>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }, gap: 2 }}>
             <Tile icon={Eye} label="Page views" value={data.totals.views} />
             <Tile icon={Users} label="Visitors" value={data.totals.visitors} note="Each person counted once per day" />
+            <Tile
+              icon={UserPlus}
+              label="New visitors"
+              value={data.totals.newVisitors || 0}
+              note={`First time on the site · ${numberFormat.format(Math.max(0, data.totals.visitors - (data.totals.newVisitors || 0)))} had been before`}
+            />
             <Tile icon={CalendarCheck} label="Enquiries" value={data.totals.bookings + data.totals.contacts} note={`${data.totals.bookings} booking · ${data.totals.contacts} contact`} />
           </Box>
 
