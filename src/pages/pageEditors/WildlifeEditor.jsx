@@ -367,7 +367,8 @@ export default function WildlifeEditor() {
               onTitleChange={(val) => setReptiles(prev => ({ ...prev, galleryTitle: val }))}
               titlePlaceholder="Reptiles of Rajaji – Photo Gallery"
               value={reptiles.galleryImages}
-              onChange={(val) => setReptiles(prev => ({ ...prev, galleryImages: val }))}
+              alts={reptiles.galleryAlts || []}
+              onChange={(images, alts) => setReptiles(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
             />
           </Paper>
         )}
@@ -461,7 +462,8 @@ export default function WildlifeEditor() {
 
             <GalleryListField
               value={birds.galleryImages}
-              onChange={(val) => setBirds(prev => ({ ...prev, galleryImages: val }))}
+              alts={birds.galleryAlts || []}
+              onChange={(images, alts) => setBirds(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
             />
           </Paper>
         )}
@@ -576,7 +578,8 @@ export default function WildlifeEditor() {
               onTitleChange={(val) => setFauna(prev => ({ ...prev, galleryTitle: val }))}
               titlePlaceholder="Mammals of Rajaji – Photo Gallery"
               value={fauna.galleryImages}
-              onChange={(val) => setFauna(prev => ({ ...prev, galleryImages: val }))}
+              alts={fauna.galleryAlts || []}
+              onChange={(images, alts) => setFauna(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
             />
           </Paper>
         )}
@@ -641,7 +644,8 @@ export default function WildlifeEditor() {
               onTitleChange={(val) => setFlora(prev => ({ ...prev, galleryTitle: val }))}
               titlePlaceholder="Flora of Rajaji – Photo Gallery"
               value={flora.galleryImages}
-              onChange={(val) => setFlora(prev => ({ ...prev, galleryImages: val }))}
+              alts={flora.galleryAlts || []}
+              onChange={(images, alts) => setFlora(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
             />
           </Paper>
         )}
@@ -714,7 +718,8 @@ export default function WildlifeEditor() {
               onTitleChange={(val) => setButterflies(prev => ({ ...prev, galleryTitle: val }))}
               titlePlaceholder="Butterflies of Rajaji – Photo Gallery"
               value={butterflies.galleryImages}
-              onChange={(val) => setButterflies(prev => ({ ...prev, galleryImages: val }))}
+              alts={butterflies.galleryAlts || []}
+              onChange={(images, alts) => setButterflies(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
             />
           </Paper>
         )}

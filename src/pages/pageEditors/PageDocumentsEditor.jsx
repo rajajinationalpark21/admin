@@ -104,7 +104,10 @@ export function PageEditor({ page }) {
               title={keys.galleryTitle ? value("galleryTitle") : undefined}
               onTitleChange={keys.galleryTitle ? (next) => set("galleryTitle", next) : undefined}
               value={value("galleryImages") || []}
-              onChange={(next) => set("galleryImages", next)}
+              alts={keys.galleryAlts ? value("galleryAlts") || [] : undefined}
+              onChange={(images, alts) =>
+                setTarget({ ...target, [keys.galleryImages]: images, ...(keys.galleryAlts && { [keys.galleryAlts]: alts }) })
+              }
             />
           ) : (
             <Typography color="text.secondary">This page has no photo gallery.</Typography>

@@ -2,6 +2,7 @@ import { Box, Typography, Button, Paper, TextField, CircularProgress } from "@mu
 import { Save, Layers, Sparkles, Camera } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import GalleryListField from "../../components/common/GalleryListField";
 import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
@@ -38,14 +39,6 @@ export default function HomePageEditor() {
 
   const setField = (key, val) => setData(prev => ({ ...prev, [key]: val }));
   const setStat = (key, val) => setData(prev => ({ ...prev, stats: { ...(prev.stats || {}), [key]: val } }));
-  // The last field is always an empty "add" slot; clearing a photo removes it.
-  const galleryImages = (data.galleryImages || []).filter(Boolean);
-  const setGalleryImage = (index, val) => {
-    const images = [...galleryImages];
-    if (val) images[index] = val;
-    else images.splice(index, 1);
-    setField("galleryImages", images);
-  };
 
   return (
     <Box sx={{ minHeight: "100%", pb: 6 }}>
@@ -270,17 +263,13 @@ export default function HomePageEditor() {
             />
           </Box>
 
-          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
-            {[...galleryImages, ""].map((image, index) => (
-              <ImageUploadField
-                key={image || "add-photo"}
-                label={image ? `Photo ${index + 1}` : "Add a photo"}
-                value={image}
-                onChange={val => setGalleryImage(index, val)}
-                allowUrl={false}
-              />
-            ))}
-          </Box>
+          <GalleryListField
+            heading={null}
+            value={data.galleryImages}
+            alts={data.galleryAlts || []}
+            onChange={(images, alts) => setData(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
+            allowUrl={false}
+          />
         </Paper>
 
         {/* Sticky Action Footer */}

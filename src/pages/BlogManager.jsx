@@ -33,6 +33,7 @@ const BlogManager = () => {
     title: "",
     category: "",
     summary: "",
+    seoTitle: "",
     content: "",
     quote: "",
     quoteAuthor: "",
@@ -75,6 +76,7 @@ const BlogManager = () => {
       data.append("title", formData.title);
       data.append("category", formData.category);
       data.append("summary", formData.summary);
+      data.append("seoTitle", formData.seoTitle);
       data.append("content", formData.content);
       if (formData.quote) data.append("quote", formData.quote);
       if (formData.quoteAuthor) data.append("quoteAuthor", formData.quoteAuthor);
@@ -103,6 +105,7 @@ const BlogManager = () => {
       title: blog.title || "",
       category: blog.category || "",
       summary: blog.summary || "",
+      seoTitle: blog.seoTitle || "",
       content: blog.content || "",
       quote: blog.quote || "",
       quoteAuthor: blog.quoteAuthor || "",
@@ -129,6 +132,7 @@ const BlogManager = () => {
       title: "",
       category: "",
       summary: "",
+      seoTitle: "",
       content: "",
       quote: "",
       quoteAuthor: "",
@@ -288,6 +292,17 @@ const BlogManager = () => {
                   onChange={handleChange}
                   required
                   size="small"
+                />
+
+                <TextField
+                  fullWidth
+                  label="Google title (optional)"
+                  name="seoTitle"
+                  value={formData.seoTitle}
+                  onChange={handleChange}
+                  size="small"
+                  slotProps={{ htmlInput: { maxLength: 70 } }}
+                  helperText={`Shown in Google results instead of the headline. Keep it under 60 characters and include "Rajaji" (${formData.seoTitle.length}/60).`}
                 />
 
                 <TextField

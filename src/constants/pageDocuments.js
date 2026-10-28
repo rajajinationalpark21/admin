@@ -6,7 +6,7 @@ const HUB_FIELDS = {
   title: null, subtitle: null, heroBanner: "hubHeroBanner", heroImages: "hubHeroImages",
   docTitle: "hubDocTitle", docBlocks: "hubDocBlocks", slug: "hubSlug",
   seoTitle: "hubSeoTitle", metaDescription: "hubMetaDescription", keywords: "hubKeywords",
-  heroImageAlt: null, galleryTitle: null, galleryImages: "hubGalleryImages",
+  heroImageAlt: null, galleryTitle: null, galleryImages: "hubGalleryImages", galleryAlts: null,
 };
 const HOME_FIELDS = { title: "heroTitle", subtitle: "heroSubtitle", docTitle: null, docBlocks: null, slug: null };
 const ZONE_FIELDS = { title: "name", subtitle: "tag", heroBanner: "heroImage" };
@@ -40,7 +40,7 @@ export const PAGE_DOCUMENTS = [
 
 export const FIELD_NAMES = [
   "title", "subtitle", "heroBanner", "heroImages", "docTitle", "docBlocks", "slug",
-  "seoTitle", "metaDescription", "keywords", "heroImageAlt", "galleryTitle", "galleryImages",
+  "seoTitle", "metaDescription", "keywords", "heroImageAlt", "galleryTitle", "galleryImages", "galleryAlts",
 ];
 
 /** The section field for each setting; null means the page has no such setting. */

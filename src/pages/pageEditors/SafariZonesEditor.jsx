@@ -14,6 +14,7 @@ import {
 import { Save, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/common/Header";
 import ImageUploadField from "../../components/common/ImageUploadField";
+import GalleryListField from "../../components/common/GalleryListField";
 import HeroImageListField from "../../components/common/HeroImageListField";
 import useSectionContent from "../../components/content/useSectionContent";
 
@@ -40,11 +41,12 @@ export default function SafariZonesEditor() {
   const zones = data.zones || [];
   const currentZone = zones[activeZoneIdx] || {};
 
+  // One field and its value, or an object of several fields changed together.
   const updateCurrentZone = (field, value) => {
     const updated = [...zones];
     updated[activeZoneIdx] = {
       ...updated[activeZoneIdx],
-      [field]: value,
+      ...(typeof field === "object" ? field : { [field]: value }),
     };
     setData(prev => ({ ...prev, zones: updated }));
   };
@@ -270,21 +272,12 @@ export default function SafariZonesEditor() {
             <Box>
               <Typography sx={{ fontSize: "0.9rem", fontWeight: 700, mb: 0.5 }}>Zone gallery</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Photos shown in the gallery section of this zone page, in this order.</Typography>
-              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
-                {[...(currentZone.galleryImages || []).filter(Boolean), ""].map((image, index) => (
-                  <ImageUploadField
-                    key={image || "add-gallery-image"}
-                    label={image ? `Gallery photo ${index + 1}` : "Add gallery photo"}
-                    value={image}
-                    onChange={(nextValue) => {
-                      const next = [...(currentZone.galleryImages || []).filter(Boolean)];
-                      if (nextValue) next[index] = nextValue;
-                      else next.splice(index, 1);
-                      updateCurrentZone("galleryImages", next);
-                    }}
-                  />
-                ))}
-              </Box>
+              <GalleryListField
+                heading={null}
+                value={currentZone.galleryImages}
+                alts={currentZone.galleryAlts || []}
+                onChange={(images, alts) => updateCurrentZone({ galleryImages: images, galleryAlts: alts })}
+              />
             </Box>
 
             {/* Gate, Price & Specs */}
