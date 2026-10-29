@@ -15,6 +15,9 @@ export default function HomePageEditor() {
     timings: "",
     zones: "",
     rules: "",
+    timingsNote: "Timings change with the season",
+    zonesNote: "6 safari zones plus Beatles Ashram",
+    rulesNote: "Strict conservation policies",
     aboutTitle: "",
     aboutDescription: "",
     aboutIntro: "",
@@ -27,6 +30,9 @@ export default function HomePageEditor() {
     galleryTitle: "Captured Moments",
     gallerySubtitle: "Glimpses of the wild, caught in the perfect light.",
     galleryImages: [],
+    blogTitle: "Tales from the Jungle",
+    reviewsTitle: "Stories & Ratings from the Trail",
+    reviewsSubtitle: "Unfiltered reflections from naturalists, wildlife photographers, and families who journeyed through the Sal forests and river corridors of Rajaji.",
   });
 
   if (loading) {
@@ -136,6 +142,30 @@ export default function HomePageEditor() {
               value={data.rules || ""}
               onChange={e => setField("rules", e.target.value)}
               placeholder="Do's & Don'ts Guide"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Timings small line"
+              value={data.timingsNote || ""}
+              onChange={e => setField("timingsNote", e.target.value)}
+              placeholder="Timings change with the season"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Zones small line"
+              value={data.zonesNote || ""}
+              onChange={e => setField("zonesNote", e.target.value)}
+              placeholder="6 safari zones plus Beatles Ashram"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Rules small line"
+              value={data.rulesNote || ""}
+              onChange={e => setField("rulesNote", e.target.value)}
+              placeholder="Strict conservation policies"
             />
           </Box>
         </Paper>
@@ -270,6 +300,44 @@ export default function HomePageEditor() {
             onChange={(images, alts) => setData(prev => ({ ...prev, galleryImages: images, galleryAlts: alts }))}
             allowUrl={false}
           />
+        </Paper>
+
+        {/* Headings of the blog and reviews sections */}
+        <Paper elevation={0} sx={{ p: { xs: 2.5, sm: 3.5 }, borderRadius: "16px", border: "1px solid", borderColor: "divider" }}>
+          <Typography sx={{ fontSize: "1.05rem", fontWeight: 700, mb: 1 }}>Blog & Reviews Headings</Typography>
+          <Typography sx={{ fontSize: "0.8125rem", color: "text.secondary", mb: 2.5 }}>
+            Headings of the latest blog posts section and the visitor reviews section on the homepage.
+          </Typography>
+
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Blog Section Heading"
+              value={data.blogTitle || ""}
+              onChange={e => setField("blogTitle", e.target.value)}
+              placeholder="Tales from the Jungle"
+            />
+            <TextField
+              fullWidth
+              size="small"
+              label="Reviews Section Heading"
+              value={data.reviewsTitle || ""}
+              onChange={e => setField("reviewsTitle", e.target.value)}
+              placeholder="Stories & Ratings from the Trail"
+            />
+          </Box>
+          <Box sx={{ mt: 2.5 }}>
+            <TextField
+              fullWidth
+              multiline
+              rows={2}
+              size="small"
+              label="Reviews Section Subtitle"
+              value={data.reviewsSubtitle || ""}
+              onChange={e => setField("reviewsSubtitle", e.target.value)}
+            />
+          </Box>
         </Paper>
 
         {/* Sticky Action Footer */}
